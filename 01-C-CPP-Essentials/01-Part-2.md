@@ -536,7 +536,7 @@ int main()
 
 - **Call by Reference** (ONLY C++)
 
-    - We pass **Address** of *actual-parametes* into *formal-parmeters*. Formal parametes must be **POINTERS** (As they must be capable of accepting addresses.)
+    - We pass **Address** of *actual-parametes* into *formal-parmeters*. Formal parametes must be declared as **POINTERS** (As they must be capable of accepting addresses.)
 
     - How to write
         - Don't make changes while *calling* actual parameters
@@ -597,3 +597,156 @@ int main()
         > Use it carefully.
 
         > Looks easy to write source-code but will make compiling process complicted. That's why C++ has both call by address as well as call by reference
+
+
+# 08. Arrays as Parameters
+
+```
+void display(int A[], int n)
+{
+    int i;
+    for (i=0, i<n; i++)
+        print("%d", A[i]);
+}
+
+int maiN()
+{
+    int arr[5] = {2, 4, 6, 8, 10};
+    dispaly( arr, 5);
+}
+```
+
+- In *declaration,* array should be given empty square brackets `A[ ]`
+    - To distinguish it from a simple variable
+    - Empty as the function cannot know the size of array beforehand. (Which will be decided in main function.)
+    - Note that `A[ ]` is like **Pointer** to array. Not an array
+
+- *Whether in C/C++ Array can only be passed by address!!!*
+
+In above code, array `arr` is passed by address(always) and  variable `n` is passed by value 
+```
+    A                        n
+    +------+                 +------+
+    |  200 |                 |  5   |
+    +------+                 +------+
+       |
+       |
+       |
+       V
+    +------+------+------+------+------+
+arr |  02  |  04  |  06  |  08  |  10  |
+    +------+------+------+------+------+
+     200
+```
+
+Note: We can use `*A` instead of `A[]` in `void display(int A[], int n)`. It means address variable `A` can point to **any data-type**. If we we write `A[]` we specifically mean address variable `A` points to an **array data-type**.
+
+- If I make changes to array inside function, it will make changes to the original array (As always passed by address)
+
+- **Functions returning an Array**
+
+    ```
+    // `int []` means return type of `integer-array`
+    // We can even write -
+    // `int * func( int n )`
+    // But it won't specifically mean an array
+
+    int [] func(int n)
+    {
+        int *p;                                 // declare a pointer variable 
+        p = (int *) malloc( n * sizeof(int) )   // create array in heap and get it's address
+        return p                                // return address of array in heap
+
+        // once `RETURNED`, the memory allocated to this
+        // function gets destroyed.
+    }
+
+    int main()
+    {
+        int *A;         // address variable created
+
+        A = func(5)     // "address" of a data-type
+                        // returned by `func(5)` is stored in `A`
+    }
+    ```
+
+    Now we can access the array in heap using -
+    ```
+    *A[ 10 ] // or `A[10]`? No I guess.
+    ```
+
+# 10. Structures as Parameters
+
+- Structures can be *called-by-value* or *called-by-address* or *called-by-reference* as per our requirements. Unlike arrays which are always *called-by-address*
+
+- **Call by Value**
+```
+struct Rectangle
+{
+    int length;
+    int breadth;
+};
+
+// calculates are by length*breadth
+
+int area( struct Rectangle r1 )
+{
+    // if I make any changes to r1.length,
+    // `r.length` in main() remains intact and same.
+
+    return ( r1.length * r1.breadth )
+}
+
+int main()
+{
+    struc Rectangle r = {10, 5}
+    printf("Area is %d", area(r) ) // sending the Recangle itself
+
+}
+```
+
+- **Call by Reference** (C++ Only)
+
+    - *Call* using same
+        ```
+        area(r)
+        ```
+    
+    - But, in *declaration* use `&` -
+        ```
+        int area(struct Rectangle &r1 )
+        ```
+    - *Definition-body* remains same.
+
+- **Call by Address**
+
+    - Pass structure address `&` in *call* and use pointers `*` in *declaration* to catch the variable at address
+    - In *definition-body* use `*`
+
+    ```
+    struct Rectangle
+    {
+        int length;
+        int breadth;
+    };
+
+    void changeLength( struct Rectangle *p )
+    {
+        (*p).length = 0; // Note Precedence
+
+        // or use
+        p -> length = 0;
+    }
+
+    int main()
+    {
+        struct Rectangle r = {10, 5}
+        changeLength(&r);
+        print("changed length is %d", r.lenth)
+    }
+    ```
+
+- **What if an `Array` is present insisde structure?**
+
+    - We cannot pass an individual Array in *call-by-value*. Only *call-by-address* is supported. 
+    - **But** we can pass an Array inside a struct by *call-by-value*

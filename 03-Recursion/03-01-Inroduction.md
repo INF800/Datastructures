@@ -34,7 +34,7 @@
     if (n>0)
     {
         print("%d", n);
-        func(n-1);
+        func1(n-1);
     }
  }
 ```
@@ -337,5 +337,42 @@ instead of
 ```
 in `func1`
 
-- Note how recursive function is waiting! You can write any code instead of simple print and make use of the logic in your algorithm
-- Recursive functions are just like *rubber-band* first it ascends and then it descends.
+> Note how recursive function is waiting! You can write any code instead of simple print and make use of the logic in your algorithm
+> Recursive functions are just like *rubber-band* first it ascends and then it descends.
+
+
+# Generalizing Recursion
+
+- We can generalize recursion code as
+
+    ```
+    void func (int n)
+    {
+        if (n>0)
+        {
+            1. .....      // code executed on CALL time ----> ASCENDING PHASE
+            2. func(n-1)  // recursive call
+            3. .....      // code executed on RETURN time ----> DESCENDING PHASE
+        }
+    }
+    ```
+
+- If there is any compution is there in the line of recursion call, they also will be executed during return time. For example
+    ```
+    int func (int n)
+    {
+        if (n>0)
+        {
+            1. .....      
+            2. func(n-1) * 2 // `*2` executed on RETURN time
+            3. .....      
+        }
+    }
+    ```
+
+**Difference Between Loop and Recursion**
+
+| Phase | Recursion | Looop |
+| --- | --- | --- |
+| Ascending Phase | Available | Available |
+| Descending Phase | Available | na |

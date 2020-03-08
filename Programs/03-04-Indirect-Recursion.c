@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-// prototyp to tell `funcA` that
+// prototype to tell `funcA` that
 // `funcB` exists
 void funcB(int n);
 

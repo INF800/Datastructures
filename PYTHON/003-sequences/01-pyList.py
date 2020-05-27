@@ -359,8 +359,8 @@ def main():
 	print("py_list a==c: ", PyList(a) == PyList(c))
 	
 	#9. search (contains)
-	
-	
+	print("\n1 in a: ", 1 in PyList(a))
+	print("99 ib a: ", 99 in PyList(a))
 	
 	
 	

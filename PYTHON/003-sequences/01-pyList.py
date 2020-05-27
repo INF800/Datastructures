@@ -289,7 +289,7 @@ class PyList:
 		
 		# easy and eff to return true first
 		
-		for i in range(search._size): # _size is always +1 even if it starts from 0 as we incr it everytime
+		for i in range(self._size): # _size is always +1 even if it starts from 0 as we incr it everytime
 			if self._list[i] == ele:
 				return True
 				

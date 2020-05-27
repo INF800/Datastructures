@@ -19,6 +19,28 @@ class PyList:
 	#end def __init__
 	
 	
+	
+	def __makeroom__(self):
+		"""
+		same as : `self._list += [None] * self._size.
+		
+		Makes room when once in a while internal list gets filled.`
+		
+		O(n)
+		"""
+		
+		# create new list double the size
+		new_list = [None] * (self._size * 2)
+		
+		# copy into tge new list
+		for i in range(self._size):
+			new_list[i] = self._list[i]
+		
+		# replace the old list with new
+		self._list = new_list
+	
+	
+	
 	def append(self, ele):
 		"""
 		Inputs
@@ -27,7 +49,8 @@ class PyList:
 		Trick for amortized time complexity 0(1).
 		Create new list double the size and copy into itevery time 
 		limit is reached and append.
-		O(1) - O(n)
+		
+		O(1) to O(n)
 		"""
 		
 		if self._size < 0:
@@ -35,10 +58,7 @@ class PyList:
 		
 		# create new big list and copy to it
 		elif self._size == self._len:
-			new_list = [None] * (self._size * 2)
-			for i in range(self._size):
-				new_list[i] = self._list[i]
-			self._list = new_list # same as `self._list = [None] * 2`
+			self.__makeroom__()
 			
 		# append
 		self._list[self._size] = ele
@@ -47,12 +67,14 @@ class PyList:
 	#end def append
 	
 	
+	
 	def __getitem__(self, idx):
 		"""
 		inputs:
 			idx: integer. index for accesor 
 			
 		usage: a = PyListObject[idx]
+		
 		O(1)
 		"""
 		
@@ -72,6 +94,7 @@ class PyList:
 			ele: python obj. to be mutated at idx
 			
 		usage: PyListObject[idx] = ele
+		
 		O(1)
 		"""
 		
@@ -113,30 +136,122 @@ class PyList:
 	
 	
 	
+	def insert(self, i, ele):
+		"""
+		inputs
+			ele {py obj} : element to be insterted
+			i   {int}    : index where `ele` must be inserted
+		
+		usage: lst.insert(i, e)
+		
+		Shift to `n`(here 1) places right side starting from from end 
+		and insert in the empty spaces formed in the middle
+		
+		O(n)
+		"""
+		
+		if i < 0: raise IndexError("Index can not be negative")
+		
+		if self._size == self._len:
+			self.__makeroom__()
+			
+		# because we are always incrementing by 1,
+		# `_size` may have lower bound 0 but upper bound 
+		# is `n` NOT `n-1`
+		
+		# if user tries to insert at first empty posn. at end (i=`n`)
+		# our _size is already pointing to it.
+		# or is user is trying to insert at i>n simply inserta at final
+		# posn as we already had invariant assumption that there will be
+		# no holes in middle
+		
+		if i <  self._size:
+			
+			# i. create emtpty space in middle (shift to right)
+			for j in range(self._size-1, i-1, -1):
+				self._list[j+1] = self._list[j]
+				
+			# ii. insert in empty space
+			self._list[i] = ele
+			self._size += 1 # >>>> see: we always update
+			
+		# if i in [last to inf], appenf at end
+		else:
+			self.append(ele)
+	
+	# end def insert
+	
+	
+	
+	def __delitem__(self, i):
+		"""
+		inputs
+			i {int} : index of ele to be deleted
+			
+		usage: del py_list[i]
+		
+		O(n)
+		"""
+		
+		# _size is always incremented by 1 in any magic func.
+		# so, it will always be one unit greater
+		if i < 0 or i > (self._size - 1):
+			raise IndexError("	Index out of range")
+			
+		# always shift to left starting from empty loc
+		else:
+			for j in range(i, self._size - 1):
+				self._list[j] = self._list[j+1]
+			self._size -= 1 # see >> funcs always incr/decr _size
+			
+			# at pos `_size+1` we will not have None. instead we will have last element.
+			# anyway tht wont be problem as our pointer `_size` isnt pointing to it. 
+			# it was decremented (see last line above).
+			# nontheless we can make it none using :
+			self._list[ self._size ] = None
+			
+	# end def __delitem__
+	
+	
+	
 	
 
 def main():
-	#empty list
+	# 1. empty list
 	my_list = PyList()
 	
-	#append
+	# 2. append
 	my_list = PyList([1,2,3,4,5,6,7,8,9])
 	my_list.append(10)
 	print("after appnd 10:", my_list._list)
 	my_list.append(11)
 	print("after appnd 11:", my_list._list)
 	
-	# get, set
+	# 3. get, set
 	print( "\nelement at 4:", my_list[4] )
 	my_list[4] = 999
 	print("changed ele at 4:", my_list[4])
 	
-	# concat
+	# 4. concat
 	res = PyList([1,2,3]) + PyList([6,7,8,9,10,11,12,13,14])
 	print("\nconcatenated:", res._list)
 	
+	# 5. insert 
+	# res.insert(-3, 999)
+	res.insert(4, 999)
+	print("999 inserted at 4:\n", res._list)
+	res.insert(999, "x")
+	print("x inserted at 999:(invar assumption)\n", res._list)
+	res.insert(14, 'zz')
+	print("zz inserted at end pos 14:\n", res._list)
 	
-	
+	# 6. delete
+	# del res[-1]
+	# del res [15]
+	del res[4]
+	print("\ndeleted idx 4: ", res._list)
+	del res[10]
+	print("\ndeleted idx 10: ", res._list)
 	
 if __name__ == "__main__":
 	main()

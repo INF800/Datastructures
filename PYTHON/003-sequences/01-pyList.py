@@ -248,7 +248,11 @@ class PyList:
 		outputs
 			returns bool
 			
+		usage: py_list1 == py_list2
+			
 		checks if two PyLists are identical
+		
+		O(n)
 		"""
 		
 		# check for false rather than true.
@@ -269,6 +273,29 @@ class PyList:
 	# end def __eq__
 	
 	
+	
+	def __contains__(self, ele):
+		"""
+		input
+			ele {py obj}
+			
+		output
+			bool
+			
+		usage: ele in py_list2
+		
+		O(n) : linear search(unsorted)
+		"""
+		
+		# easy and eff to return true first
+		
+		for i in range(search._size): # _size is always +1 even if it starts from 0 as we incr it everytime
+			if self._list[i] == ele:
+				return True
+				
+		return False
+		
+	#end def __contains__
 	
 	
 	
@@ -330,6 +357,14 @@ def main():
 	c = [1,2,2]
 	print("\npy_list a==b: ", PyList(a) == PyList(a))
 	print("py_list a==c: ", PyList(a) == PyList(c))
+	
+	#9. search (contains)
+	
+	
+	
+	
+	
+	
 
 # end def main
 	

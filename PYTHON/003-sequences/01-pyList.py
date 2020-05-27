@@ -107,6 +107,7 @@ class PyList:
 	#end def __setitem__
 	
 	
+	
 	def __add__(self, other):
 		"""
 		inputs
@@ -214,6 +215,68 @@ class PyList:
 	
 	
 	
+	def __iter__(self):
+		"""
+		usage: for ele in pylist: pass
+		
+		generator for iterator
+		"""
+		for i in range(self._size):
+			yield self._list[i]
+			
+	# end def __iter__
+	
+	
+	
+	def __len__(self):
+		"""
+		usage: len(py_list)
+		
+		returns size of internal list (filled)
+		"""
+		return self._size
+		
+	#end def size
+	
+	
+	
+	def __eq__(self, other):
+		"""
+		inputs
+			other {PyList obj}
+			
+		outputs
+			returns bool
+			
+		checks if two PyLists are identical
+		"""
+		
+		# check for false rather than true.
+		# easy and def 
+		
+		if type(self) != type(other):
+			return False
+		if len(self) != len(other):
+			return False
+			
+		for i in range(self._size): # could have also use len() as we defined __len__()
+			if self._list[i] != other._list[i]:
+				return False
+				
+		#else
+		return True
+		
+	# end def __eq__
+	
+	
+	
+	
+	
+	
+
+# end class PyList
+	
+	
 	
 
 def main():
@@ -252,6 +315,27 @@ def main():
 	print("\ndeleted idx 4: ", res._list)
 	del res[10]
 	print("\ndeleted idx 10: ", res._list)
+	
+	# 6. Iterator
+	print("\n iterator:")
+	for i in res:
+		print(i, end=" ")
+	
+	# 7. length
+	print("\n\nlength is: ", len(res))
+	
+	# 8. equality
+	a = [1,2,3]
+	b = [1,2,3]
+	c = [1,2,2]
+	print("\npy_list a==b: ", PyList(a) == PyList(a))
+	print("py_list a==c: ", PyList(a) == PyList(c))
+
+# end def main
+	
+	
+	
+	
 	
 if __name__ == "__main__":
 	main()

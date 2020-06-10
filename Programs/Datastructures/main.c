@@ -1,28 +1,44 @@
+// Sum of `n` Natural Numbers using
+// Recursion
+
+
 #include <stdio.h>
 
-// prototyp to tell `funcA` that
-// `funcB` exists
-void funcB(int n);
-
-void funcA(int n)
+// Note: As this is a tail recursion,
+// we can convert it into while-loop
+// complexity
+//  - time  :
+//  - space :
+int sumOf(int n)
 {
-    if (n>0)
+    if (n==0)
     {
-        printf("%d", n);
-        funcB(n-1);
+        return 0;
     }
+    else
+        return sumOf(n-1) + n;
+
+
 }
 
-void funcB(int n)
+// using while loop
+// complexity
+//  - time  :
+//  - space :
+int efficientSumOf(int n)
 {
-    if (n>1)
+    while (n>0)
     {
-        printf("%d", n);
-        funcA(n/2);
+        return n + efficientSumOf(n-1);
     }
+    return 0;
 }
 
 int main()
 {
-    funcA(20); //201998431
+    int n = 100;
+    printf("%d", sumOf(n)); // 5050
+    
+    // efficient approach
+    printf("%d", efficientSumOf(n)); // 5050
 }

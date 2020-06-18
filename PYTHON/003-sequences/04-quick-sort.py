@@ -38,7 +38,7 @@ def qsort(a, beg, end):
         return
 
     pidx = partition(a, beg, end)
-    qsort(a, beg, pidx)
+    qsort(a, beg, pidx) # if we include pidx, we will get into worst case t.c! note: we are not inluding here (beg,end]
     qsort(a, pidx, end)
 #end def
 

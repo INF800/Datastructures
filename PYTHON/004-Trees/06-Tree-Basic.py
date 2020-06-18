@@ -73,7 +73,7 @@ class Tree:
         # perform action(here) ----------------------------------------> post order
 
 if __name__ == "__main__":
-    my_tree = Tree(max_ht=4)
+    my_tree = Tree(max_ht=2)
     # build tree with hardcoded values
     my_tree.build_tree()
     # print results

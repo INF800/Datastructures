@@ -5,7 +5,7 @@ class max_sub_arr:
         self.in_arr = in_arr 
         self.size   = size
 
-    def bruteforce0(self):
+    def bruteforce(self):
         """
         - use lcur and rcur for bruteforce search of all possible sub-arrays.
         - then, use another loop to find sum of subarr
@@ -35,7 +35,7 @@ class max_sub_arr:
                         MAX_LCUR            = lcur
                         MAX_RCUR            = rcur 
                         #break #if max sum not needed
-                        
+
         return MAX_SUB_ARR_SUM, MAX_LCUR, MAX_RCUR
                     
                 

@@ -1,0 +1,29 @@
+A matrix of size  where  and  are integers that denote the number of rows and columns of the matrix respectively. The matrix contains integer elements only. You are given an integer .
+
+Write a program to determine the number of submatrices of this matrix such that the sum of all the elements of a submatrix is divisible by .
+
+Input format
+
+First line: , , and 
+Next  lines: 
+Output format
+
+Print the number of submatrices such that the sum of all the elements in those submatrices is divisible by P.
+
+Constraints
+
+
+
+
+SAMPLE INPUT 
+2 2 2
+1 2
+3 4
+SAMPLE OUTPUT 
+5
+Explanation
+There are 5 possible submatrices of the given matrix such that sum of elements is divisible by 2.
+
+Time Limit:	1.0 sec(s) for each input file.
+Memory Limit:	256 MB
+Source Limit:	1024 KB

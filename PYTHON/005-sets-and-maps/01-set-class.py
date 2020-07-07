@@ -8,7 +8,7 @@ class HashSet:
 
     METHDOS:
         - __add(e, _list, _size)    : if item added, return true. if already exists returns false
-        - __rehash(_list, _size)    : copy internal list into new and after rehashing 
+        - __rehash(_list, _size, factor) : copy internal list into new(incr/decr size) and after rehashing 
         - __remove(e, _list, _size) : removes e for _list returns true. if not found, return false
 
         - __load                : returns load factor after computing
@@ -78,18 +78,18 @@ class HashSet:
                     # after writing to it, terminates
                     idx = 0
 
-    def __rehash(self):
-        step_fac = 2
+    def __rehash(self, step_fac=2):
 
         old_list = self._items
         old_size = self._size # true size of _list
 
-        new_list   = [None] * (step_fac*old_size)
+        new_size   = int(step_fac*old_size)
+        new_list   = [None] * new_size
         # update 
         #   - _list with biiger one(empty)
         #   - _size (Hashing using new _size)
         self._items = new_list
-        self._size  = step_fac*old_size
+        self._size  = new_size
         
         # copy into new list
         for e in old_list:
@@ -110,7 +110,7 @@ class HashSet:
             # linear probing will take high T.C. So, increase size
             # (items filled in continous chain with empty __placeholders)
             if self.__load() > max_load_factor:
-                self.__rehash()
+                self.__rehash(2) # double _list
 
     # -----------------------------------------------
     # implement remove
@@ -135,8 +135,17 @@ class HashSet:
                     idx = 0 # start from beg
 
     def remove(self, e):
+        min_load_factor = 0.25
+
         if self.__remove(e):
             self.num_of_items -= 1
+
+        # rehash into new list with smaller size
+        # if load is less than 25% i.e only 25% or less is filled
+        # decrease the _list(halve it)
+        if self.__load() < min_load_factor:
+            self.__rehash(0.5) # halve _list
+
 
     # -----------------------------------------------
     # basic
@@ -162,6 +171,10 @@ class HashSet:
                 if idx == self._size: # if out of range, 
                     idx = 0 # start from beg
 
+    def __iter__(self):
+        for idx in range(0, self._size):
+            if self._items[idx] is not None:
+                yield self._items[idx]
 
 # ---------------------------------------------------
 # END HASHSET
@@ -196,7 +209,6 @@ if __name__ == '__main__':
     else:
         print('Test 1-2: Add/rehash FAILED!')
 
-
     # 2. Remove / contains
     # ----------
     printline()
@@ -215,3 +227,21 @@ if __name__ == '__main__':
         print('Test 2-2: Remove/contains passed')
     else:
         print('Test 2-2: contains FAILED!')
+
+    # 3. ITER
+    printline()
+    accumulator = []
+    for x in s:
+        accumulator.append(x)
+    #print(accumulator)
+    #print( list( set(s._items) - set([None]) ) )
+
+    failed = False
+    for e in list( set(s._items) - set([None]) ):
+        if e not in accumulator:
+            print('Test 3: Iterator FAILED')
+            failed = True
+    if not failed:
+        print('Test 3: Iterator passed')
+        
+    

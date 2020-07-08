@@ -81,6 +81,13 @@ class HashMap:
     def __len__(self):
         return len(self._hset)
 
+    # dont use `if e in dic.keys()` cz it is lin search
+    # use `if e in dict` cz hashed search
+    def __contains__(self, k):
+        KVPair = HashMap.__KVPair(k, None)
+        return KVPair in self._hset
+
+
 if __name__ == '__main__':
     lst = [
         ['a',       'apple'], 
@@ -154,12 +161,11 @@ if __name__ == '__main__':
         hmap = HashMap(lst)
         hmap.remove('x')
 
-        keys = []
         for k, _ in hmap:
-            #print(f'k:{k} \t v:{v}')
-            keys.append(k)
+            # note: `in` shows polymorphism for both iterator and contains
+            # print(f'k:{k} \t v:{v}')
+            pass
 
-        if 'x' in keys:
+        if 'x' in hmap:
             print('Test 2-1: Remove / iter Failed')
         print('Test 2-1: Remove / iter Passed')
-        

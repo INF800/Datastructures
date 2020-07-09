@@ -127,5 +127,5 @@ if __name__ == '__main__':
     print(f'str rep of AST(postorder): \t {root.postorder()} \t [IMPLEMENTED USING STACK]')
     print(f'str rep of AST(preorder): \t {root.preorder()} \t [DOESNT NEED PARENTHESIS]')
     print('+'*100)
-    print(f'Built tree using CFG(prefix expr): {tree.root.inorder()} val: {tree.root.evaluate()}')
+    print(f'Built tree using CFG(prefix-expr): {tree.root.inorder()} val: {tree.root.evaluate()}')
     print('+'*100)

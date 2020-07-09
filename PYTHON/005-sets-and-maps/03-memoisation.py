@@ -40,4 +40,4 @@ def _fib(n):
 if __name__=='__main__':
     n = 100 #1000
     # with memoisation
-    print(_fib(n), f'calls(n={n}): {n_calls}') # why calls x2 ? in text it is x1  
+    print(_fib(n), f'calls(n={n}): {n_calls}') # why calls are nx2 ? in text it is nx1  

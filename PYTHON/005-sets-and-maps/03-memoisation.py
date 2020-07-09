@@ -38,6 +38,6 @@ def _fib(n):
     return ret
 
 if __name__=='__main__':
-    n = 100 #1000
+    n = 10000 #1000
     # with memoisation
     print(_fib(n), f'calls(n={n}): {n_calls}') # why calls are nx2 ? in text it is nx1  

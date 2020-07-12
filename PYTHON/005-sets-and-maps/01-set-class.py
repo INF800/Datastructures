@@ -258,5 +258,3 @@ if __name__ == '__main__':
             failed = True
     if not failed:
         print('Test 3: Iterator passed')
-        
-    

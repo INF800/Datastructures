@@ -68,6 +68,13 @@ class Node:
 
 class BST:
     """ Binary Search Tree
-    - 
+    DATA MEMBERS
+        - root      : holds root node
+
+    METHODS
+        - buld tree
+        - traverse tree
+        - delete item
     """
-    pass
+    def __init__(self):
+        self.root = None

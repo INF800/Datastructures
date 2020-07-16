@@ -1,11 +1,12 @@
 from copy import deepcopy
+import math
 
 # -------------------------------
 # start class board
 # -------------------------------
 
 class Board:
-    def __init__(self, mat=[['','',''],['','',''],['','','']]):
+    def __init__(self, mat=[['','',''],['','',''],['','','']]):#[['o','o','x'],['o','o','x'],['x','','']]):
         self.mat = mat
     
     def size(self):
@@ -86,50 +87,53 @@ class Board:
 # -------------------------------
 
 def minimax(board, depth, isMaximizingPlayer):
+
     # base condition: returns score
     if board.winner() != None:
-        score = board.winner()
-        #print(score)
-        #board.reset()
-        return score
+        stat = board.winner()
+
+        if (isMaximizingPlayer) and (stat == 1): return 10
+        elif (not isMaximizingPlayer) and (stat == -1): return -10
+        if stat == 0 : return 0
+
 
     # else, recur into score
     if isMaximizingPlayer == True:
         x_moves = board.all_row_major_empty_moves()
-        bestScore = -999999999999999999
+        bestScore = -math.inf
+        bestMoves = None
+
         for (i, j) in x_moves:
             board.update(i, j, 'x')
             score = minimax(board, depth+1, not isMaximizingPlayer)
             if score > bestScore:
                 bestScore = score
+                bestMoves = (i, j)
+                print(bestScore, 'best move: ', bestMoves, 'x', depth)
             board.update(i, j, '')
         return bestScore
 
     if isMaximizingPlayer == False:
-        o_moves = board.all_row_major_empty_moves()
-        bestScore = 999999999999999999
+        o_moves     = board.all_row_major_empty_moves()
+        bestScore   = math.inf
+        bestMoves   = None
+
         for (i, j) in o_moves:
             board.update(i, j, 'o')
             score = minimax(board, depth+1, not isMaximizingPlayer)
             if score < bestScore:
                 bestScore = score
+                bestMoves = (i, j)
+                print('best moves: ', bestMoves, 'o', depth)
             board.update(i, j, '')
         return bestScore
 
 def retBestMove(board):
-    boardCopy = Board(deepcopy(board.mat))
-    moves = board.all_row_major_empty_moves()
+    board_copy  = Board(deepcopy(board.mat))
+    #moves       = board_copy.all_row_major_empty_moves()
+    return minimax(board_copy, 0, True)
 
-    bestScore = -999999999999999999
-    bestRow, bestCol = None, None
-    for (i, j) in moves:
-        score = minimax(boardCopy, depth=0, isMaximizingPlayer=True)
-        if score > bestScore:
-            bestScore   = score
-            bestRow     = i
-            bestCol     = j
-    
-    return bestRow, bestCol, bestScore
+
 
 if __name__ == '__main__':
     board = Board()
@@ -138,17 +142,32 @@ if __name__ == '__main__':
     # [ ][ ][ ]
     # [ ][ ][o]
     #board.update(2,2, 'o')
+    
     #board.show()
+    #print(minimax(board, 0, True))
 
+    # [x][ ][o]
+    # [ ][o][ ]
+    # [ ][ ][ ]
+    board.update(1,1,'o')
+    board.update(0,0,'x')
+    board.update(0,2,'o')
+
+    print(retBestMove(board))
+    board.show()
+
+    '''
     iter = 0
-    while iter<9:
+    while iter<8:
         board.show()
         
         _i = int(input())
         _j = int(input())
         board.update(_i, _j, 'o')
 
-        i, j, score = retBestMove(board)
+        score, i, j = retBestMove(board)
+        print('i:',i, 'j:',j, 'score:',score)
         board.update(i, j, 'x')
 
         iter += 1
+    '''

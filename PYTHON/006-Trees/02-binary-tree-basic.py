@@ -194,11 +194,32 @@ class Tree:
                 # 3.update queue (can do it using for loop (multiple children))
                 if cur_node.get_left()  is not None: queue.enqueue(cur_node.get_left())
                 if cur_node.get_right() is not None: queue.enqueue(cur_node.get_right( ))
-            
+
+        if iterative == True:
+            # Level order traversal (RECURSIVE METHOD)
+            # ----------------------------------------
+
+            def __bfs(node, rec_ht=0):
+                pass
+
+            # call recursive method
+            __bfs(self.root)
+
     # --------------------------------------------------------------------------
     # DFS
     # --------------------------------------------------------------------------
     def traverse_dfs(self, iterative=True):
+        """
+        ITERATTIVE 
+            - use stack
+            - push root to empty stack
+            - until stack is not empty
+                - pop and preform action on returned node (cur_node)
+                - push children of cur_node to same queue
+
+        RECURSIVE
+            - preo-order traversal
+        """
         if self.root is None:
             raise("Tree empty!")
         #else,
@@ -253,6 +274,10 @@ if __name__ == "__main__":
 
     print("", "","+"*100, 'TESTING  BFS: LEVEL ORDER TRAVERSAL (ITERATIVE)', "+"*100, sep="\n",end='\n\n')
     my_tree.traverse_bfs()
+
+    print("", "","+"*100, 'TESTING  BFS TRAVERSAL (RECURSION)', "+"*100, sep="\n",end='\n\n')
+    #my_tree.traverse_bfs(iterative=False) 
+    print("Cannot go lvl by lvl usin recur. can do it with aux data struc but iterative is better!")
     
     print("", "","+"*100, 'TESTING  DFS TRAVERSAL (ITERATIVE)', "+"*100, sep="\n",end='\n\n')
     my_tree.traverse_dfs()

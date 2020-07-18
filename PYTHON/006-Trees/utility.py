@@ -187,6 +187,8 @@ class Stack:
     def __topidx(self):
         return len(self._list) - 1
         
+    def __len__(self):
+        return len(self._list)
 
 
 # ------------------------------------------------

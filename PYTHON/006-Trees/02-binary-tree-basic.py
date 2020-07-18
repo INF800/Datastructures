@@ -165,8 +165,8 @@ class Tree:
         """ Define operaton  to perform on any node (including leaf)"""
         print(f">> {node.get_val()}")
 
-    def traverse_levelorder(self, iterative=True):
-        """ BFS!
+    def traverse_bfs(self, iterative=True):
+        """ LEVEL-ORDER
         ITERATTIVE 
             - use queue
             - enqueue root to empty queue
@@ -185,13 +185,13 @@ class Tree:
 
             while len(queue) != 0:
     
-                # get foremost from queue
+                # 1.get foremost from queue
                 cur_node = queue.dequeue()
                 
-                # action:
+                # 2.action:
                 Tree.__action(cur_node)
 
-                # update queue (can do it using )
+                # 3.update queue (can do it using for loop (multiple children))
                 if cur_node.get_left()  is not None: queue.enqueue(cur_node.get_left())
                 if cur_node.get_right() is not None: queue.enqueue(cur_node.get_right( ))
             
@@ -203,16 +203,42 @@ class Tree:
             raise("Tree empty!")
         #else,
         if iterative == True:
+
             # DFS search traversal (ITERATIVE METHOD)
             # ----------------------------------------
+            first = self.root
+            stack = Stack([first])
 
-            stack = Stack([self.root])
+            while len(stack) != 0:
+                # 1. get node
+                cur_node = stack.pop()
 
+                # 2. action
+                Tree.__action(cur_node)
 
+                # 3.update stack (can do it using for loop (multiple children))
+                if cur_node.get_left()  is not None: stack.push(cur_node.get_left())
+                if cur_node.get_right() is not None: stack.push(cur_node.get_right( ))
+
+        if iterative == False:
+            
+            # DFS search traversal (RECURSIVE METHOD)
+            # ----------------------------------------
+            def __dfs(node):
+                """ Same as pre-order traversal """
+                # 1. action
+                Tree.__action(node)
+
+                # 2. base condn (not at beg s.t action called only once)
+                if node.get_left() is not None  : __dfs(node.get_left())
+                if node.get_right() is not None : __dfs(node.get_right())
+
+            # call recursive func
+            __dfs(self.root)
 
 if __name__ == "__main__":
     # create tree
-    my_tree = Tree(max_ht=2)
+    my_tree = Tree(max_ht=2) # ht=2
 
     # build tree with hardcoded values
     my_tree.build_tree()
@@ -226,6 +252,10 @@ if __name__ == "__main__":
     print(my_tree.root.traverse_postorder(), end='\n\n')
 
     print("", "","+"*100, 'TESTING  BFS: LEVEL ORDER TRAVERSAL (ITERATIVE)', "+"*100, sep="\n",end='\n\n')
-    my_tree.traverse_levelorder()
+    my_tree.traverse_bfs()
     
     print("", "","+"*100, 'TESTING  DFS TRAVERSAL (ITERATIVE)', "+"*100, sep="\n",end='\n\n')
+    my_tree.traverse_dfs()
+
+    print("", "","+"*100, 'TESTING  DFS TRAVERSAL (RECURSION)', "+"*100, sep="\n",end='\n\n')
+    my_tree.traverse_dfs(iterative=False) # same as preorder traversal

@@ -1,3 +1,5 @@
+from utility import Queue, Stack
+
 class Node:
     def __init__(self, val=None, left=None, right=None, height=None):
         self.val        = val
@@ -5,7 +7,15 @@ class Node:
         self.left       = left
         self.isLeaf     = (self.right is None) and (self.left is None)
         self.height     = height
-        
+    
+    def get_val(self):
+        return self.val
+    
+    def get_left(self):
+        return self.left    
+    
+    def get_right(self):
+        return self.right
     # --------------------------------------------------------------------------
     def traverse_preorder(self):
         '''
@@ -147,6 +157,59 @@ class Tree:
         # end action
         '''
 
+    # --------------------------------------------------------------------------
+    # BFS: Level order traversal
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def __action(node):
+        """ Define operaton  to perform on any node (including leaf)"""
+        print(f">> {node.get_val()}")
+
+    def traverse_levelorder(self, iterative=True):
+        """ BFS!
+        ITERATTIVE 
+            - use queue
+            - enqueue root to empty queue
+            - until queue is not empty
+                - deque and preform action on returned node (cur_node)
+                - enqueue children of cur_node to same queue
+        """
+        if self.root is None:
+            raise("Tree empty!")
+        #else,
+        if iterative == True:
+            # Level order traversal (ITERATIVE METHOD)
+            # ----------------------------------------
+            first = self.root
+            queue = Queue([first])
+
+            while len(queue) != 0:
+    
+                # get foremost from queue
+                cur_node = queue.dequeue()
+                
+                # action:
+                Tree.__action(cur_node)
+
+                # update queue (can do it using )
+                if cur_node.get_left()  is not None: queue.enqueue(cur_node.get_left())
+                if cur_node.get_right() is not None: queue.enqueue(cur_node.get_right( ))
+            
+    # --------------------------------------------------------------------------
+    # DFS
+    # --------------------------------------------------------------------------
+    def traverse_dfs(self, iterative=True):
+        if self.root is None:
+            raise("Tree empty!")
+        #else,
+        if iterative == True:
+            # DFS search traversal (ITERATIVE METHOD)
+            # ----------------------------------------
+
+            stack = Stack([self.root])
+
+
+
 if __name__ == "__main__":
     # create tree
     my_tree = Tree(max_ht=2)
@@ -155,9 +218,14 @@ if __name__ == "__main__":
     my_tree.build_tree()
     
     # traverse tree
-    my_tree.traverse_tree()
+    my_tree.traverse_tree() # pre/in/post-order using non-mutual recur funcs
 
-    print('\nTESTING MUTUALLY RECURSIVE TRAVERSAL FUNCS', end='\n\n')
+    print("", "","+"*100, 'TESTING MUTUALLY RECURSIVE TRAVERSAL FUNCS', "+"*100, sep="\n",end='\n\n')
     print(my_tree.root.traverse_preorder(), end='\n\n')
     print(my_tree.root.traverse_inorder(), end='\n\n')
     print(my_tree.root.traverse_postorder(), end='\n\n')
+
+    print("", "","+"*100, 'TESTING  BFS: LEVEL ORDER TRAVERSAL (ITERATIVE)', "+"*100, sep="\n",end='\n\n')
+    my_tree.traverse_levelorder()
+    
+    print("", "","+"*100, 'TESTING  DFS TRAVERSAL (ITERATIVE)', "+"*100, sep="\n",end='\n\n')

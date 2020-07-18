@@ -23,7 +23,7 @@ class Board:
         self.mat = [['','',''],['','',''],['','','']]
 
     def show(self):
-        map = {
+        hmap = {
             '00' : None,
             '01' : None,
             '02' : None,
@@ -37,10 +37,10 @@ class Board:
 
         for i in range(0, 3):
             for j in range(0,3):
-                if self.mat[i][j] == '' : map[f'{i}{j}'] = ' '
-                else: map[f'{i}{j}'] = self.mat[i][j]
+                if self.mat[i][j] == '' : hmap[f'{i}{j}'] = ' '
+                else: hmap[f'{i}{j}'] = self.mat[i][j]
         
-        print(f'\n[{map["00"]}][{map["01"]}][{map["02"]}]\n[{map["10"]}][{map["11"]}][{map["12"]}]\n[{map["20"]}][{map["21"]}][{map["22"]}]\n')
+        print(f'\n[{hmap["00"]}][{hmap["01"]}][{hmap["02"]}]\n[{hmap["10"]}][{hmap["11"]}][{hmap["12"]}]\n[{hmap["20"]}][{hmap["21"]}][{hmap["22"]}]\n')
 
     @staticmethod
     def __id(xo):
@@ -88,50 +88,52 @@ class Board:
 
 def minimax(board, depth, isMaximizingPlayer):
 
-    # base condition: returns score
+    # base condition: returns prob of maximizing player winning
+    # -1 / 0 / +1
     if board.winner() != None:
         stat = board.winner()
-
-        if (isMaximizingPlayer) and (stat == 1): return 10
-        elif (not isMaximizingPlayer) and (stat == -1): return -10
-        if stat == 0 : return 0
-
+        return stat
 
     # else, recur into score
-    if isMaximizingPlayer == True:
-        x_moves = board.all_row_major_empty_moves()
-        bestScore = -math.inf
-        bestMoves = None
+    if isMaximizingPlayer is True:
+        x_moves     = board.all_row_major_empty_moves()
+        maxScore    = -math.inf
+        bestMove    = None
 
         for (i, j) in x_moves:
             board.update(i, j, 'x')
             score = minimax(board, depth+1, not isMaximizingPlayer)
-            if score > bestScore:
-                bestScore = score
-                bestMoves = (i, j)
-                print(bestScore, 'best move: ', bestMoves, 'x', depth)
+            if score > maxScore:
+                maxScore  = score
+                bestMove  = (i, j)
+            # log
+            if depth==0: print(f'---move: {i},{j} \t score: {score} \t best_score: {maxScore} \t {board.show()}')
             board.update(i, j, '')
-        return bestScore
+        
+        # return differently for top most recursion call(as we need data)
+        if depth==0: return bestMove, maxScore
+        return maxScore
 
-    if isMaximizingPlayer == False:
+    elif isMaximizingPlayer is False:
         o_moves     = board.all_row_major_empty_moves()
-        bestScore   = math.inf
-        bestMoves   = None
+        minScore    = +math.inf
+        bestMove    = None
 
         for (i, j) in o_moves:
             board.update(i, j, 'o')
             score = minimax(board, depth+1, not isMaximizingPlayer)
-            if score < bestScore:
-                bestScore = score
-                bestMoves = (i, j)
-                print('best moves: ', bestMoves, 'o', depth)
+            if score < minScore:
+                minScore  = score
+                bestMove  = (i, j)
+            if depth==1: print(f'move: {i},{j} \t score: {score} \t best_score: {minScore} \t {board.show()}')        
             board.update(i, j, '')
-        return bestScore
+        return minScore
 
 def retBestMove(board):
     board_copy  = Board(deepcopy(board.mat))
-    #moves       = board_copy.all_row_major_empty_moves()
-    return minimax(board_copy, 0, True)
+
+    bestMove, bestScore = minimax(board_copy, 0, True)
+    return bestMove, bestScore
 
 
 
@@ -146,27 +148,26 @@ if __name__ == '__main__':
     #board.show()
     #print(minimax(board, 0, True))
 
+    
     # [x][ ][o]
     # [ ][o][ ]
     # [ ][ ][ ]
     board.update(1,1,'o')
     board.update(0,0,'x')
     board.update(0,2,'o')
-
-    print(retBestMove(board))
     board.show()
 
+    print(retBestMove(board))
+    
     '''
     iter = 0
     while iter<8:
         board.show()
         
-        _i = int(input())
-        _j = int(input())
+        _i, _j = list(map(lambda x: int(x), input().split()))
         board.update(_i, _j, 'o')
 
-        score, i, j = retBestMove(board)
-        print('i:',i, 'j:',j, 'score:',score)
+        (i, j), score = retBestMove(board)
         board.update(i, j, 'x')
 
         iter += 1

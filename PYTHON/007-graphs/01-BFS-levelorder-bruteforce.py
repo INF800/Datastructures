@@ -5,7 +5,9 @@
 # For, larger graphs, pretty much useless
 # ii.  Convert graph into a tree with any vtx as root in any order and perform BFS. (same code as of tree)
 # iii. Analytically, there are `n` nodes. Thus, T.C is `n`. (Keeping QUEUE opns. and everything aside.) 
-
+#       - but 
+#           - if adj_matrix, n^2
+#           - if finding shortest path k! (k - len of bfs search o/p)
 from utils import Queue
 from itertools import permutations, combinations
 import math

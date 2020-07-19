@@ -134,6 +134,43 @@ class Graph:
         if ids_used: self.__egde_memo[from_vtx+to_vtx] = False # populate 1of3
         return False # indicate no edge
 
+    @staticmethod
+    def __search_naive(paths):
+
+        #best
+        min_edge_wt = math.inf
+        best_path   = None
+        
+        for path in paths:
+            sum_edge_wts = 0
+            broken_or_small_path  = False
+
+            # find length of individual edges in path, add them and select min
+            path_looped = False
+            for beg_edge_idx in range(0, len(path)-1):
+                end_edge_idx = beg_edge_idx + 1
+                # use memoisation(for faster)
+                edge_wt = graph.get_weight(path[beg_edge_idx], path[end_edge_idx], ids_used=True)
+                sum_edge_wts += edge_wt # minimize
+                #print(path)
+                #print(path[beg_edge_idx], path[end_edge_idx], edge_wt)
+                if (edge_wt is False) or (sum_edge_wts>=min_edge_wt):
+                    # sum_edge_wts >= min_edge_wt: Intelligently reduces loop
+                    # edge_wt is False: makes sure we are not upating best_path on wrong occasion
+                    broken_or_small_path=True; break # no edge connecting
+                if (beg_edge_idx == len(path)-2): path_looped = True
+            
+            if broken_or_small_path or not path_looped: 
+                continue # reject path where one of edges is missing (or no path at all)
+            
+            if sum_edge_wts < min_edge_wt:
+                min_edge_wt = sum_edge_wts
+                best_path   = path
+            #print(f"path: {path}, -------------> dist: {sum_edge_wts} \t best: {min_edge_wt}")
+        
+        return best_path, min_edge_wt
+
+        
     def greedy_search_shortest_path(self, start_id, end_id):
         """ No way related to bfs 
         - returns path: none shortest_dist: inf if no path avl.
@@ -149,85 +186,94 @@ class Graph:
         end_node    = set([end_id])
         mid_path0   = all_nodes - beg_node - end_node
 
-        # gen all possible paths (can include search directly here)
+        # gen all possible paths and search
+        
+        # gen paths list 1of2
         paths = []
         for num_nodes in range(0, len(mid_path0)+1):
             for comb in combinations(mid_path0, r=num_nodes):
                 #print(comb) # if (a, b, c) present, (b, a, c) absent
                 for perm in permutations(comb):
-                    #print(perm) # # if (a, b, c) present, (b, a, c) present
-                    paths.append( list(beg_node) + list(perm) + list(end_node) )
+                    #print(perm) # # if (a, b, c) present, (b, a, c) present 
+                    path = list(beg_node) + list(perm) + list(end_node)
+                    # gen paths list 2of2
+                    paths.append( path )
 
-        # search best path from gen paths
-        min_edge_wt = math.inf
-        best_path   = None
-        for path in paths:
-            sum_edge_wts = 0
-            broken_or_small_path  = False
+        #search and log
+        best_path, min_edge_wt = Graph.__search_naive(paths)
 
-            # find length of individual edges in path, add them and select min
-            path_looped = False
-            for beg_edge_idx in range(0, len(path)-1):
-                end_edge_idx = beg_edge_idx + 1
-                # use memoisation(for faster)
-                edge_wt = graph.get_weight(path[beg_edge_idx], path[end_edge_idx], ids_used=True)
-                sum_edge_wts += edge_wt # minimize
-                #print(path)
-                #print(path[beg_edge_idx], path[end_edge_idx], edge_wt)
-                if (edge_wt is False) or (sum_edge_wts>=min_edge_wt): broken_or_small_path=True; break # no edge connecting
-                if (beg_edge_idx == len(path)-2): path_looped = True
-            
-            if broken_or_small_path or not path_looped: 
-                continue # reject path where one of edges is missing (or no path at all)
-            
-            if sum_edge_wts < min_edge_wt:
-                min_edge_wt = sum_edge_wts
-                best_path   = path
-            #print(f"path: {path}, -------------> dist: {sum_edge_wts} \t best: {min_edge_wt}")
-        
         print(f'best path: {best_path}, shortest dist: {min_edge_wt}')
+
         
     # ----------------------------------------------------------------------
     # BFS
     # ----------------------------------------------------------------------
     def __reconstruct(self, prevs):
-        ''' SHORTEST PATH
+        ''' SHORTEST PATH (UN-WEIGHTED)
         input: 
             BFS Traversal o/p 
                 + list of nodes eg. ['B', 'A', 'D', 'C', 'E'] (Always unique)
                 + prevs[0]   - beg of path
                 + prevs[-1]   - end of path
         returns:
-            shortest path from beg to end
+            shortest path from beg to end for unweighted graph
 
-        TIME:   O(n^2) (to find shortest path not BFS)
+        TIME:   O(k!) (to find shortest path not BFS)
+                    - k : traversal o/p of bfs (always unique)
+                    - k is small most of the times (cz unique). But for large graphs large.
+                    - for every `revcur` loop: n, n-1, n-2 ... 1 times
+
         '''
         shortest_path = [] #A->C->E represented as [(E, C,) (C, A)]  in reverse!
-        # GENERATE SHAORTEST PATH
         
+        # GENERATE SHAORTEST PATH
         for revcur in range(len(prevs)-1, -1, -1): # rev: end -1 !inclusive
 
             cur = 0 # beg !inclusive (loop until decreasing rev)
             # converge from both sides (works for odd as well as even len cz. ret=0 for same ids)
-            #   eg, ['A', 'B', 'C', 'D']
+            # eg, for ['A', 'B', 'C', 'D', 'E', 'F']
+            #                
+            #  for (rev = len - 1)
+            #  find shortest path: ['A', 'B', 'C', 'D', 'E', 'F']
+            #                        ^cur                     ^rev
+            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
+            #                  ^                        ^   is A->F shortest?
+            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
+            #                       ^                   ^   is B->F shortest?
+            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
+            #                            ^              ^   is C->F shortest?
+            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
+            #                                 ^         ^   is D->F shortest?
+            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
+            #                                      ^    ^   is E->F shortest?
+            # n loops.
+            # Do same for (rev = len-1) : ['A', 'B', 'C', 'D', 'E', 'F']
+            #                               ^cur                ^rev
+            # n-1 loops.
+            # Do same for (rev = len-2) : ['A', 'B', 'C', 'D', 'E', 'F']
+            #                               ^cur           ^rev
+            # n-2 loops.
+            # and so on ..
             while (cur < len(prevs)) and (cur != revcur):
                 # 0     - if from == to
                 # wt    - edge present
                 # False - edge absent
-                ret = self.get_weight(from_vtx=prevs[revcur], to_vtx=prevs[cur], ids_used=True)
-                
-                #print(f'{prevs[revcur]} -> {prevs[cur]} edge: {ret} \t\t {revcur} -> {cur} ')
+                ret = self.get_weight(from_vtx=prevs[cur], to_vtx=prevs[revcur], ids_used=True)
+
+                # DEBUG
+                print(f'{prevs[revcur]} -> {prevs[cur]} edge: {ret} \t\t {revcur} -> {cur} ')
                 if ret is not False: 
                     
                     if len(shortest_path) != 0: #[]
                         # check continous path
                         path_end = shortest_path[-1][1]
                         path_beg = prevs[revcur]
-                        if path_beg == path_end :
+                        if (path_beg == path_end): # check wt as well for weightetd G
                             shortest_path.append((prevs[revcur], prevs[cur]))
+                        else: pass
                     elif len(shortest_path) == 0: # initial case
                         shortest_path.append((prevs[revcur], prevs[cur]))
-                    #print(shortest_path) # next shortest path
+                    #print(shortest_path) # print next shortest path
                 cur = cur + 1
 
         print(f'shortest path reconstructed (revrse): {shortest_path}')
@@ -339,7 +385,7 @@ if __name__ == '__main__':
             {"initial": 'A', 'terminal': 'B', 'weight': 100},
             {"initial": 'A', 'terminal': 'D', 'weight': 10},
             {"initial": 'B', 'terminal': 'A', 'weight': 50},
-            {"initial": 'A', 'terminal': 'C', 'weight': 100},
+            #{"initial": 'A', 'terminal': 'C', 'weight': 100},
             {"initial": 'B', 'terminal': 'D', 'weight': 100},
             {"initial": 'C', 'terminal': 'A', 'weight': 16},
             {"initial": 'D', 'terminal': 'E', 'weight': 16},
@@ -388,6 +434,10 @@ if __name__ == '__main__':
     graph.bfs(beg_id='A', end_id='T');                                 print("="*100) 
     graph.bfs(beg_id='A', end_id='C');                                 print("="*100)
     graph.bfs(beg_id='B', end_id='E');                                 print("="*100)
+
+    # note: B->E in naive (weighted) and B->E in bfs(unweighted)
+    # can we use same bfs shortest path search code for weighted?
+    # Yes, edit the `__reconstruct`'s shortest path gen. line 271
     
 
 

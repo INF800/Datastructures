@@ -254,6 +254,8 @@ class Graph:
             #                               ^cur           ^rev
             # n-2 loops.
             # and so on ..
+            #
+            # so n! is worst case time complexity. but reduces over time if rev makes big jumps.
             while (cur < len(prevs)) and (cur != revcur):
                 # 0     - if from == to
                 # wt    - edge present
@@ -276,9 +278,9 @@ class Graph:
                     #print(shortest_path) # print next shortest path
                 cur = cur + 1
 
-        print(f'shortest path reconstructed (revrse): {shortest_path}')
+        print(f'un-weighted shortest path reconstructed (revrse): {shortest_path}')
         unrev = [(fro, to) for (to, fro) in reversed(shortest_path)]
-        print(f'shortest path reconstructed (corect): {unrev}')
+        print(f'un-weighted shortest path reconstructed (corect): {unrev}')
         return unrev# reconstructed
 
     @staticmethod
@@ -385,7 +387,7 @@ if __name__ == '__main__':
             {"initial": 'A', 'terminal': 'B', 'weight': 100},
             {"initial": 'A', 'terminal': 'D', 'weight': 10},
             {"initial": 'B', 'terminal': 'A', 'weight': 50},
-            #{"initial": 'A', 'terminal': 'C', 'weight': 100},
+            {"initial": 'A', 'terminal': 'C', 'weight': 100},
             {"initial": 'B', 'terminal': 'D', 'weight': 100},
             {"initial": 'C', 'terminal': 'A', 'weight': 16},
             {"initial": 'D', 'terminal': 'E', 'weight': 16},
@@ -443,6 +445,64 @@ if __name__ == '__main__':
 
 
 
+# ======================================================================================================
+# Output
+# ======================================================================================================
+"""
+A -------------[100]-----------> B
+A -------------[100]-----------> C
+A -------------[10]-----------> D
+B -------------[50]-----------> A
+B -------------[100]-----------> D
+C -------------[16]-----------> A
+D -------------[16]-----------> E
+E -------------[2]-----------> C
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Naive Bruteforce
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+best path: ['A', 'B'], shortest dist: 100
+====================================================================================================
+best path: ['A', 'D', 'E'], shortest dist: 26
+====================================================================================================
+ID not present
+====================================================================================================
+best path: ['B', 'A', 'D', 'E'], shortest dist: 76
+====================================================================================================
+best path: None, shortest dist: inf
+====================================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ BFS Search
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+IDs missing
+====================================================================================================
+path exists (direct edges may not be present): ['A', 'B', 'D', 'C']
+C -> A edge: 100                 3 -> 0 
+C -> B edge: False               3 -> 1 
+C -> D edge: False               3 -> 2 
+D -> A edge: 10                  2 -> 0 
+D -> B edge: 100                 2 -> 1 
+B -> A edge: 100                 1 -> 0 
+un-weighted shortest path reconstructed (revrse): [('C', 'A')]
+un-weighted shortest path reconstructed (corect): [('A', 'C')]
+A->C
+====================================================================================================
+path exists (direct edges may not be present): ['B', 'A', 'D', 'C', 'E']
+E -> B edge: False               4 -> 0 
+E -> A edge: False               4 -> 1 
+E -> D edge: 16                  4 -> 2 
+E -> C edge: False               4 -> 3 
+C -> B edge: False               3 -> 0 
+C -> A edge: 100                 3 -> 1 
+C -> D edge: False               3 -> 2 
+D -> B edge: 100                 2 -> 0 
+D -> A edge: 10                  2 -> 1 
+A -> B edge: 50                  1 -> 0 
+un-weighted shortest path reconstructed (revrse): [('E', 'D'), ('D', 'B')]
+un-weighted shortest path reconstructed (corect): [('B', 'D'), ('D', 'E')]
+B->D->E
+====================================================================================================
+"""
 
 
 

@@ -102,7 +102,7 @@ class Graph:
                 Graph.__print_graph(vtx_id, neighbor[0], neighbor[1])
 
     # ----------------------------------------------------------------------
-    # BFS implementation
+    # Brute force path search (from all perm-combns)
     # ----------------------------------------------------------------------
     def get_weight(self, from_vtx, to_vtx, ids_used=False):
 
@@ -117,7 +117,7 @@ class Graph:
 
         if ids_used==True: #from_vtx, to_vtx are ids not instances of Vertex
             self.__egde_memo[from_vtx+to_vtx] = 0 # populate 3of3
-            if from_vtx == to_vtx: return 0 # same vtxs i.e 0 dist        
+            if from_vtx == to_vtx: return 0 # same vtxs i.e 0 dist
             neighbors   = self.vtx_map[from_vtx].adj_list
         else: # instances of Vertex
             if from_vtx == to_vtx: return 0 # same vtxs i.e 0 dist        
@@ -133,52 +133,6 @@ class Graph:
 
         if ids_used: self.__egde_memo[from_vtx+to_vtx] = False # populate 1of3
         return False # indicate no edge
-
-    @staticmethod
-    def __action(goal, cur_vertex, graph):
-        # prev node for wt.
-        if graph.__bfs_prev_node is None: graph.__bfs_prev_node = cur_vertex
-
-        # log info
-        path_len = graph.get_weight(graph.__bfs_prev_node, cur_vertex)
-        print(f"visited: {cur_vertex.id}", end="")
-        print(f"\t edge({graph.__bfs_prev_node.id} -> {cur_vertex.id}): {path_len}") # note edge != shorted dist in any manner.
-
-        # goal
-        if cur_vertex.id == goal:
-            print('Found. Path exists. Shortest Path(weighted)? Use greedy search by taking all possible node edges or build MSP and brute')
-            return True
-
-        # update prev node
-        graph.__bfs_prev_node = cur_vertex
-        return False
-
-    def bfs(self, start=None, goal=None):
-        if start is None: first = self.vtx_map['A'] # can be random: random.choice(self.vtx_map.keys())
-        else: first = self.vtx_map[start]
-        found = False
-
-        queue       = Queue([first]) #  instant opn: first-in, first-operated upon        
-        visited     = set() # IDs of already visited to avoid
-
-        while len(queue) != 0:
-
-            cur_node = queue.dequeue()
-            
-            # note visited
-            visited.add(cur_node.id)
-            # exec action
-            found = Graph.__action(goal, cur_node, self) # exects action as well
-            if found: break
-            # update queue
-            for v_id, _ in cur_node.adj_list:
-                if v_id not in visited: # if condn. must be placed here ONLY. 
-                    queue.enqueue(self.vtx_map[v_id]) # in any random order
-
-        # reach here after complete search / goal not found
-        graph.__bfs_prev_node = None # reset
-        if not found: print("Complete search done. Goal vtx not found")
-
 
     def greedy_search_shortest_path(self, start_id, end_id):
         """ No way related to bfs 
@@ -231,11 +185,86 @@ class Graph:
         
         print(f'best path: {best_path}, shortest dist: {min_edge_wt}')
         
-    
-    def bfs_search_unweighted(self, beg_id, end_id):
+    # ----------------------------------------------------------------------
+    # BFS
+    # ----------------------------------------------------------------------
+    def __reconstruct(self, prevs):
+        ''' SHORTEST PATH
+        input: 
+            BFS Traversal o/p 
+                + list of nodes eg. ['B', 'A', 'D', 'C', 'E'] (Always unique)
+                + prevs[0]   - beg of path
+                + prevs[-1]   - end of path
+        returns:
+            shortest path from beg to end
+
+        TIME:   O(n^2) (to find shortest path not BFS)
+        '''
+        shortest_path = [] #A->C->E represented as [(E, C,) (C, A)]  in reverse!
+        # GENERATE SHAORTEST PATH
+        
+        for revcur in range(len(prevs)-1, -1, -1): # rev: end -1 !inclusive
+
+            cur = 0 # beg !inclusive (loop until decreasing rev)
+            # converge from both sides (works for odd as well as even len cz. ret=0 for same ids)
+            #   eg, ['A', 'B', 'C', 'D']
+            while (cur < len(prevs)) and (cur != revcur):
+                # 0     - if from == to
+                # wt    - edge present
+                # False - edge absent
+                ret = self.get_weight(from_vtx=prevs[revcur], to_vtx=prevs[cur], ids_used=True)
+                
+                #print(f'{prevs[revcur]} -> {prevs[cur]} edge: {ret} \t\t {revcur} -> {cur} ')
+                if ret is not False: 
+                    
+                    if len(shortest_path) != 0: #[]
+                        # check continous path
+                        path_end = shortest_path[-1][1]
+                        path_beg = prevs[revcur]
+                        if path_beg == path_end :
+                            shortest_path.append((prevs[revcur], prevs[cur]))
+                    elif len(shortest_path) == 0: # initial case
+                        shortest_path.append((prevs[revcur], prevs[cur]))
+                    #print(shortest_path) # next shortest path
+                cur = cur + 1
+
+        print(f'shortest path reconstructed (revrse): {shortest_path}')
+        unrev = [(fro, to) for (to, fro) in reversed(shortest_path)]
+        print(f'shortest path reconstructed (corect): {unrev}')
+        return unrev# reconstructed
+
+    @staticmethod
+    def __display_path(list_of_fro_to):
+        """
+        input   : [('B', 'A'), ('A', 'C'), ('C', 'E')]
+        output  : B->A->C->E
+        """
+        for fro, _ in list_of_fro_to:
+            print(f'{fro}->', end="")
+        print(list_of_fro_to[-1][1])
+
+
+    def __opn(self, cur_id, goal, prevs):
+        #print(cur_id)
+        prevs.append(cur_id)
+        if cur_id == goal: 
+            print(f'path exists (direct edges may not be present): {prevs}')
+            # reconstruct prevs
+            reconstructed = self.__reconstruct(prevs)
+            Graph.__display_path(reconstructed)
+            return prevs, True
+        
+        #else
+        return prevs, False
+
+    def bfs(self, beg_id, end_id):
         """
         - record prev nodes to reconstruct path
         - can be used in graphs w/ equidistant nodes. eg. MAZE!
+
+        TIME
+            - Analytically, O(n)
+            - if adjacency matrix O(n^2) cz matrix   
         """
         if beg_id not in self.vtx_map.keys() or end_id not in self.vtx_map.keys():
             print('IDs missing')
@@ -243,33 +272,26 @@ class Graph:
 
         first   = self.vtx_map[beg_id]
         queue   = Queue([first])
-        visited = set()
-        prevs   = Queue() # records shortest path
+        visited = set(first.id)
+        prevs   = list([first.id]) # records shortest path
 
-        # Regular BFS
+        # Regular BFS 
+        # ------------
         while len(queue) != 0:
+            # get (explore)
+            parent_node = queue.dequeue() # not unique but cur_node_id(below) is unique
 
-            # get
-            cur_node = queue.dequeue()
-            visited.add(cur_node.id)
+            # update queue (visiting)
+            for cur_node_id, _ in parent_node.adj_list:
+                if cur_node_id not in visited: # access in any order
 
-            # action (record nodes if edge present - unlike in bfs above)
-            prevs.enqueue(cur_node)
-            if cur_node.id == end_id: break
-
-            # update queue
-            for v_id, _ in cur_node.adj_list:
-                if v_id not in visited: # access in any order. altered set
-                    queue.enqueue(self.vtx_map[v_id])
-
-
-        # reconstruct prevs
-
-        
-        # display
-        print(f'shortest unweighted path: {[i.id if type(i)==Vertex else i for i in prevs._list]}')
-        return
-        
+                    # action o(unlike in bfs above)
+                    prevs, goal_found = self.__opn(cur_node_id, goal=end_id, prevs=prevs)
+                    if goal_found is True: return
+                    
+                    # add to visited and enqueue
+                    queue.enqueue(self.vtx_map[cur_node_id])
+                    visited.add(cur_node_id)
 
 
 if __name__ == '__main__':
@@ -346,24 +368,28 @@ if __name__ == '__main__':
     graph.display()
 
     # -------------------------------------------------------------------
-    # c. BFS & shortest path(greedy search - not related to BFS)
+    # c. BFS & and shortest path(greedy search - naive, not related to BFS)
     # -------------------------------------------------------------------
-    # i. complete search / goal search
-    graph.bfs(goal='T'); print("="*100) 
-    graph.bfs(goal='C'); print("="*100)
-    graph.bfs(start='A', goal='E'); print("="*100)
-    
-    # ii. Shortest Path? Use greedy search by taking all possible node edges
-    graph.bfs(start='B', goal='C');                                 print("="*100)
+    # Shortest Path? Use greedy search by taking all possible node edges
+    # works for both weighted and unweighted
+    print("+"*100)
+    print('+ Naive Bruteforce');                                    print("+"*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='B');    print("="*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='E');    print("="*100)
     graph.greedy_search_shortest_path(start_id='E', end_id='T');    print("="*100)
-    graph.greedy_search_shortest_path(start_id='D', end_id='Q');    print("="*100)
+    graph.greedy_search_shortest_path(start_id='B', end_id='E');    print("="*100)
+    graph.greedy_search_shortest_path(start_id='D', end_id='Q');    print("="*100, end='\n\n')
 
-    # iii. shortest path (unweighted)
-    graph.bfs_search_unweighted(beg_id='A', end_id='E');            print("="*100)
-    graph.bfs_search_unweighted(beg_id='B', end_id='C');            print("="*100)
-    graph.bfs_search_unweighted(beg_id='A', end_id='B');            print("="*100)
+    # i. complete search / goal search / shortest path(un-weighted ONLY)
+    print("+"*100)
+    print('+ BFS Search');                                             print("+"*100)
+    graph.bfs(beg_id='A', end_id='T');                                 print("="*100) 
+    graph.bfs(beg_id='A', end_id='C');                                 print("="*100)
+    graph.bfs(beg_id='B', end_id='E');                                 print("="*100)
+    
+
+
+
 
 
 

@@ -388,9 +388,9 @@ if __name__ == '__main__':
         ],
         "edges" : [
             {"initial": 'A', 'terminal': 'B', 'weight': 100},
+            {"initial": 'A', 'terminal': 'C', 'weight': 100},
             {"initial": 'A', 'terminal': 'D', 'weight': 10},
             {"initial": 'B', 'terminal': 'A', 'weight': 50},
-            {"initial": 'A', 'terminal': 'C', 'weight': 100},
             {"initial": 'B', 'terminal': 'D', 'weight': 100},
             {"initial": 'C', 'terminal': 'A', 'weight': 16},
             {"initial": 'D', 'terminal': 'E', 'weight': 16},

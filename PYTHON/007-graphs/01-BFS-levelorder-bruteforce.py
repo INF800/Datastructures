@@ -1,7 +1,8 @@
 # ======================================================================================================
 # Breadth First Search - Graph
 # ======================================================================================================
-# i.   Can also be called, level order search or a bruteforce search. Used to find shorted path. For, larger graphs, pretty much useless
+# i.   Can also be called, level order search or a bruteforce search. Used to find shorted path(only UN-WEIGHTED GRAPH). 
+# For, larger graphs, pretty much useless
 # ii.  Convert graph into a tree with any vtx as root in any order and perform BFS. (same code as of tree)
 # iii. Analytically, there are `n` nodes. Thus, T.C is `n`. (Keeping QUEUE opns. and everything aside.) 
 
@@ -54,9 +55,12 @@ class Graph:
                             + uses Set (for avoiding endless traversal)
 
         - get_weight                    : takes Vertex / vtxIds as input and gives edge weight
-        - greedy_search_shortest_path   : of all perm-combns of paths, selects best path
+        - greedy_search_shortest_path   : brute of all perm-combns of paths, selects best path
                                             + not related to bfs
+                                            + For WEIGHTED graph
                                             + uses get_weight with memoisation for IDs only
+        
+        - shortest_path    : for UN-WEIGHTED graph
     """
     def __init__(self):
         self.vtx_map = {}
@@ -140,7 +144,7 @@ class Graph:
 
         # goal
         if cur_vertex.id == goal:
-            print('Found. Path exists. Shortest Path? Use greedy search by taking all possible node edges')
+            print('Found. Path exists. Shortest Path(weighted)? Use greedy search by taking all possible node edges or build MSP and brute')
             return True
 
         # update prev node
@@ -174,12 +178,19 @@ class Graph:
         if not found: print("Complete search done. Goal vtx not found")
 
     def greedy_search_shortest_path(self, start_id, end_id):
-        """ No way related to bfs """
+        """ No way related to bfs 
+        - returns path: none shortest_dist: inf if no path avl.
+        """
+        if start_id not in self.vtx_map.keys() or end_id not in self.vtx_map.keys():
+            print('ID not present')
+            return
+
         all_nodes   = set(self.vtx_map.keys()) # randomized here (python default hashing)
         beg_node    = set([start_id])
         end_node    = set([end_id])
         mid_path0   = all_nodes - beg_node - end_node
 
+        # gen all possible paths
         paths = []
         for num_nodes in range(0, len(mid_path0)+1):
             for comb in combinations(mid_path0, r=num_nodes):
@@ -188,6 +199,7 @@ class Graph:
                     #print(perm) # # if (a, b, c) present, (b, a, c) present
                     paths.append( list(beg_node) + list(perm) + list(end_node) )
 
+        # search best path
         min_edge_wt = math.inf
         best_path   = None
         for path in paths:
@@ -195,14 +207,19 @@ class Graph:
             broken_or_small_path  = False
 
             # find length of individual edges in path, add them and select min
-            for beg_edge_idx in range(0, len(path)-1, 2):
+            path_looped = False
+            for beg_edge_idx in range(0, len(path)-1):
                 end_edge_idx = beg_edge_idx + 1
                 # use memoisation(for faster)
                 edge_wt = graph.get_weight(path[beg_edge_idx], path[end_edge_idx], ids_used=True)
-                sum_edge_wts += edge_wt
+                sum_edge_wts += edge_wt # minimize
+                #print(path)
+                #print(path[beg_edge_idx], path[end_edge_idx], edge_wt)
                 if (edge_wt is False) or (sum_edge_wts>=min_edge_wt): broken_or_small_path=True; break # no edge connecting
+                if (beg_edge_idx == len(path)-2): path_looped = True
             
-            if broken_or_small_path: continue # reject path where one of edges is missing (or no path at all)
+            if broken_or_small_path or not path_looped: 
+                continue # reject path where one of edges is missing (or no path at all)
             
             if sum_edge_wts < min_edge_wt:
                 min_edge_wt = sum_edge_wts
@@ -245,6 +262,10 @@ if __name__ == '__main__':
                 "id"    : 'E',
                 "label" : 'Lanka',
                 "coods" : (99, 99), #(x, y, width, height)
+            },{
+                "id"    : 'Q',
+                "label" : 'Turkey',
+                "coods" : (15, 80), #(x, y, width, height)
             }
         ],
         "edges" : [
@@ -255,6 +276,7 @@ if __name__ == '__main__':
             {"initial": 'B', 'terminal': 'D', 'weight': 100},
             {"initial": 'C', 'terminal': 'A', 'weight': 16},
             {"initial": 'D', 'terminal': 'E', 'weight': 16},
+            {"initial": 'E', 'terminal': 'C', 'weight': 2},
         ]
     }
 
@@ -285,13 +307,14 @@ if __name__ == '__main__':
     # -------------------------------------------------------------------
     graph.bfs(goal='T'); print("="*100) 
     graph.bfs(goal='C'); print("="*100)
+    graph.bfs(start='A', goal='E'); print("="*100)
     
     # Shortest Path? Use greedy search by taking all possible node edges
     graph.bfs(start='B', goal='C');                                 print("="*100)
-    graph.greedy_search_shortest_path(start_id='C', end_id='E');    print("="*100)
+    graph.greedy_search_shortest_path(start_id='A', end_id='B');    print("="*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='E');    print("="*100)
-    graph.greedy_search_shortest_path(start_id='E', end_id='B');    print("="*100)
-    graph.greedy_search_shortest_path(start_id='D', end_id='A');    print("="*100)
+    graph.greedy_search_shortest_path(start_id='E', end_id='T');    print("="*100)
+    graph.greedy_search_shortest_path(start_id='D', end_id='Q');    print("="*100)
 
 
 

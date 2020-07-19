@@ -270,6 +270,7 @@ class Graph:
                     
                     if len(shortest_path) != 0: #[]
                         # check continous path
+                        # add to shortest_path only if "latest" continous path
                         path_end = shortest_path[-1][1]
                         path_beg = prevs[revcur]
                         if (path_beg == path_end): # check wt as well for weightetd G

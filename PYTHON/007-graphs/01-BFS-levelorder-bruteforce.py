@@ -137,6 +137,8 @@ class Graph:
     def greedy_search_shortest_path(self, start_id, end_id):
         """ No way related to bfs 
         - returns path: none shortest_dist: inf if no path avl.
+
+        TIME        : EXPONENTIAL 2^n!!! (use memoisation)
         """
         if start_id not in self.vtx_map.keys() or end_id not in self.vtx_map.keys():
             print('ID not present')
@@ -147,7 +149,7 @@ class Graph:
         end_node    = set([end_id])
         mid_path0   = all_nodes - beg_node - end_node
 
-        # gen all possible paths
+        # gen all possible paths (can include search directly here)
         paths = []
         for num_nodes in range(0, len(mid_path0)+1):
             for comb in combinations(mid_path0, r=num_nodes):

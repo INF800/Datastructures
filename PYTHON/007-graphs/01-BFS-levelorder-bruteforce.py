@@ -116,20 +116,22 @@ class Graph:
         # ------------------------------------------
 
         if ids_used==True: #from_vtx, to_vtx are ids not instances of Vertex
+            self.__egde_memo[from_vtx+to_vtx] = 0 # populate 3of3
+            if from_vtx == to_vtx: return 0 # same vtxs i.e 0 dist        
             neighbors   = self.vtx_map[from_vtx].adj_list
         else: # instances of Vertex
+            if from_vtx == to_vtx: return 0 # same vtxs i.e 0 dist        
             neighbors = from_vtx.adj_list
 
-        if from_vtx == to_vtx: return 0 # same vtxs i.e 0 dist        
         
         for id, w in neighbors:
             if not ids_used:
                 if id==to_vtx.id: return w
             elif ids_used:
-                self.__egde_memo[from_vtx+to_vtx] = w # populate 2of2
+                self.__egde_memo[from_vtx+to_vtx] = w # populate 2of3
                 if id==to_vtx: return w
 
-        if ids_used: self.__egde_memo[from_vtx+to_vtx] = False # populate 1of2
+        if ids_used: self.__egde_memo[from_vtx+to_vtx] = False # populate 1of3
         return False # indicate no edge
 
     @staticmethod
@@ -177,6 +179,7 @@ class Graph:
         graph.__bfs_prev_node = None # reset
         if not found: print("Complete search done. Goal vtx not found")
 
+
     def greedy_search_shortest_path(self, start_id, end_id):
         """ No way related to bfs 
         - returns path: none shortest_dist: inf if no path avl.
@@ -199,7 +202,7 @@ class Graph:
                     #print(perm) # # if (a, b, c) present, (b, a, c) present
                     paths.append( list(beg_node) + list(perm) + list(end_node) )
 
-        # search best path
+        # search best path from gen paths
         min_edge_wt = math.inf
         best_path   = None
         for path in paths:
@@ -225,9 +228,49 @@ class Graph:
                 min_edge_wt = sum_edge_wts
                 best_path   = path
             #print(f"path: {path}, -------------> dist: {sum_edge_wts} \t best: {min_edge_wt}")
-
         
         print(f'best path: {best_path}, shortest dist: {min_edge_wt}')
+        
+    
+    def bfs_search_unweighted(self, beg_id, end_id):
+        """
+        - record prev nodes to reconstruct path
+        - can be used in graphs w/ equidistant nodes. eg. MAZE!
+        """
+        if beg_id not in self.vtx_map.keys() or end_id not in self.vtx_map.keys():
+            print('IDs missing')
+            return
+
+        first   = self.vtx_map[beg_id]
+        queue   = Queue([first])
+        visited = set()
+        prevs   = Queue() # records shortest path
+
+        # Regular BFS
+        while len(queue) != 0:
+
+            # get
+            cur_node = queue.dequeue()
+            visited.add(cur_node.id)
+
+            # action (record nodes if edge present - unlike in bfs above)
+            prevs.enqueue(cur_node)
+            if cur_node.id == end_id: break
+
+            # update queue
+            for v_id, _ in cur_node.adj_list:
+                if v_id not in visited: # access in any order. altered set
+                    queue.enqueue(self.vtx_map[v_id])
+
+
+        # reconstruct prevs
+
+        
+        # display
+        print(f'shortest unweighted path: {[i.id if type(i)==Vertex else i for i in prevs._list]}')
+        return
+        
+
 
 if __name__ == '__main__':
 
@@ -305,16 +348,22 @@ if __name__ == '__main__':
     # -------------------------------------------------------------------
     # c. BFS & shortest path(greedy search - not related to BFS)
     # -------------------------------------------------------------------
+    # i. complete search / goal search
     graph.bfs(goal='T'); print("="*100) 
     graph.bfs(goal='C'); print("="*100)
     graph.bfs(start='A', goal='E'); print("="*100)
     
-    # Shortest Path? Use greedy search by taking all possible node edges
+    # ii. Shortest Path? Use greedy search by taking all possible node edges
     graph.bfs(start='B', goal='C');                                 print("="*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='B');    print("="*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='E');    print("="*100)
     graph.greedy_search_shortest_path(start_id='E', end_id='T');    print("="*100)
     graph.greedy_search_shortest_path(start_id='D', end_id='Q');    print("="*100)
+
+    # iii. shortest path (unweighted)
+    graph.bfs_search_unweighted(beg_id='A', end_id='E');            print("="*100)
+    graph.bfs_search_unweighted(beg_id='B', end_id='C');            print("="*100)
+    graph.bfs_search_unweighted(beg_id='A', end_id='B');            print("="*100)
 
 
 

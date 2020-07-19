@@ -61,7 +61,7 @@ class Queue:
         if self.head > self._size*ratio:
             self.__compress()
 
-        if self.isempty(): raise('Queue Empty!')        
+        if self.isempty(): return 'Queue Empty!'
 
         popped = self._list[self.head]
         self._list[self.head] = None
@@ -93,7 +93,7 @@ class Queue:
         return False
 
     def get_head(self):
-        if self.isempty(): raise('Queue is empty!')
+        if self.isempty(): return 'Queue is empty!'
         return self._list[self.head]
 
     def get_tail(self):

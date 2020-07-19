@@ -436,8 +436,9 @@ if __name__ == '__main__':
     graph.bfs(beg_id='B', end_id='E');                                 print("="*100)
 
     # note: B->E in naive (weighted) and B->E in bfs(unweighted)
-    # can we use same bfs shortest path search code for weighted?
+    # can we use same bfs shortest path search code for B->E weighted?
     # Yes, edit the `__reconstruct`'s shortest path gen. line 271
+    # but this is useless for large graphs, so, doesn't worth it.
     
 
 

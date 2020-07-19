@@ -447,8 +447,8 @@ if __name__ == '__main__':
 
     # see geeks for geeks for dfft. implementation
     # https://www.geeksforgeeks.org/shortest-path-unweighted-graph/
-    
-
+    # use BFS for better performance than Djikstras
+    # https://courses.csail.mit.edu/6.006/fall11/rec/rec15.pdf
 
 
 # ======================================================================================================

@@ -3,6 +3,9 @@
 # ======================================================================================================
 # i.   Can also be called, level order search or a bruteforce search. Used to find shorted path(only UN-WEIGHTED GRAPH). 
 # For, larger graphs, pretty much useless
+#       - queue is used you to 
+#           + suspend most-recent-prev-node and 
+#           + act on last_prev
 # ii.  Convert graph into a tree with any vtx as root in any order and perform BFS. (same code as of tree)
 # iii. Analytically, there are `n` nodes. Thus, T.C is `n`. (Keeping QUEUE opns. and everything aside.) 
 #       - but 

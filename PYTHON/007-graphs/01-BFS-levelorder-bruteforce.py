@@ -210,141 +210,102 @@ class Graph:
     # ----------------------------------------------------------------------
     # BFS
     # ----------------------------------------------------------------------
-    def __reconstruct(self, prevs):
-        ''' SHORTEST PATH (UN-WEIGHTED)
-        input: 
-            BFS Traversal o/p 
-                + list of nodes eg. ['B', 'A', 'D', 'C', 'E'] (Always unique)
-                + prevs[0]   - beg of path
-                + prevs[-1]   - end of path
-        returns:
-            shortest path from beg to end for unweighted graph
-
-        TIME:   O(k!) (to find shortest path not BFS)
-                    - k : traversal o/p of bfs (always unique)
-                    - k is small most of the times (cz unique). But for large graphs large.
-                    - for every `revcur` loop: n, n-1, n-2 ... 1 times
-
-        '''
-        shortest_path = [] #A->C->E represented as [(E, C,) (C, A)]  in reverse!
+    @staticmethod
+    def __bfs(graph, beg_id, end_id, shortest_path=True):
         
-        # GENERATE SHAORTEST PATH
-        for revcur in range(len(prevs)-1, -1, -1): # rev: end -1 !inclusive
+        first   = graph.vtx_map[beg_id]
+        queue   = Queue([first])
+        visited = set([first.id])
 
-            cur = 0 # beg !inclusive (loop until decreasing rev)
-            # converge from both sides (works for odd as well as even len cz. ret=0 for same ids)
-            # eg, for ['A', 'B', 'C', 'D', 'E', 'F']
-            #                
-            #  for (rev = len - 1)
-            #  find shortest path: ['A', 'B', 'C', 'D', 'E', 'F']
-            #                        ^cur                     ^rev
-            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
-            #                  ^                        ^   is A->F shortest?
-            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
-            #                       ^                   ^   is B->F shortest?
-            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
-            #                            ^              ^   is C->F shortest?
-            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
-            #                                 ^         ^   is D->F shortest?
-            #                ['A', 'B', 'C', 'D', 'E', 'F'] 
-            #                                      ^    ^   is E->F shortest?
-            # n loops.
-            # Do same for (rev = len-1) : ['A', 'B', 'C', 'D', 'E', 'F']
-            #                               ^cur                ^rev
-            # n-1 loops.
-            # Do same for (rev = len-2) : ['A', 'B', 'C', 'D', 'E', 'F']
-            #                               ^cur           ^rev
-            # n-2 loops.
-            # and so on ..
-            #
-            # so n! is worst case time complexity. but reduces over time if rev makes big jumps.
-            while (cur < len(prevs)) and (cur != revcur):
-                # 0     - if from == to
-                # wt    - edge present
-                # False - edge absent
-                ret = self.get_weight(from_vtx=prevs[cur], to_vtx=prevs[revcur], ids_used=True)
+        nearest_prevs_hmap = {}
+        
+        found = False
+        while len(queue) != 0:
+            # explore: (prev node not always unique.)
+            # Goes through all nodes
+            prev_node = queue.dequeue()
 
-                # DEBUG
-                print(f'{prevs[revcur]} -> {prevs[cur]} edge: {ret} \t\t {revcur} -> {cur} ')
-                if ret is not False: 
-                    
-                    if len(shortest_path) != 0: #[]
-                        # check continous path
-                        # add to shortest_path only if "latest" continous path
-                        path_end = shortest_path[-1][1]
-                        path_beg = prevs[revcur]
-                        if (path_beg == path_end): # check wt as well for weightetd G
-                            shortest_path.append((prevs[revcur], prevs[cur]))
-                        else: pass
-                    elif len(shortest_path) == 0: # initial case
-                        shortest_path.append((prevs[revcur], prevs[cur]))
-                    #print(shortest_path) # print next shortest path
-                cur = cur + 1
+            neighbors_ids_wts = prev_node.adj_list
+            for cur_id, _ in neighbors_ids_wts:
 
-        print(f'un-weighted shortest path reconstructed (revrse): {shortest_path}')
-        unrev = [(fro, to) for (to, fro) in reversed(shortest_path)]
-        print(f'un-weighted shortest path reconstructed (corect): {unrev}')
-        return unrev# reconstructed
+                if cur_id not in visited:
+                    # visit: (cur_node always unique)
+                    # update `queue` and `visited`
+                    queue.enqueue(graph.vtx_map[cur_id])
+                    visited.add(cur_id)
+
+                    # action - populate hmap
+                    # can break if end_id is found cz
+                    # we add all nearest prevs until `cur_id` in lookup table
+                    nearest_prevs_hmap[cur_id] = prev_node.id
+                    if cur_id == end_id: 
+                        found = True
+                        break
+
+            if found is True: break
+
+
+        # at end of bfs traversal/search
+        return nearest_prevs_hmap
+
 
     @staticmethod
-    def __display_path(list_of_fro_to):
-        """
-        input   : [('B', 'A'), ('A', 'C'), ('C', 'E')]
-        output  : B->A->C->E
-        """
-        for fro, _ in list_of_fro_to:
-            print(f'{fro}->', end="")
-        print(list_of_fro_to[-1][1])
-
-
-    def __opn(self, cur_id, goal, prevs):
-        #print(cur_id)
-        prevs.append(cur_id)
-        if cur_id == goal: 
-            print(f'path exists (direct edges may not be present): {prevs}')
-            # reconstruct prevs
-            reconstructed = self.__reconstruct(prevs)
-            Graph.__display_path(reconstructed)
-            return prevs, True
+    def __shortest_path(nearest_prevs_hmap, end_id, beg_id, ret=False):
+        """ Searching from `end_id` in `nearest_prevs` leads to `beg_id` with shortest path """
         
-        #else
-        return prevs, False
+        if end_id not in nearest_prevs_hmap: 
+            if ret == True: return False
+            print('No path')
+            return
 
-    def bfs(self, beg_id, end_id):
+        prev      = end_id
+        rev_path  = []
+
+        while prev != beg_id:
+            rev_path.append(prev)
+            # update
+            prev = nearest_prevs_hmap[prev]
+
+        rev_path += [beg_id]
+
+        if ret is True: return reversed(rev_path)
+        #else if ret is false, log.
+        print('shortest unweighted path: ', end="")
+        for _id in reversed(rev_path):
+            print(_id, end='->')
+        print()
+
+
+    def bfs_shortest_path_search(self, beg_id, end_id):
         """
-        - record prev nodes to reconstruct path
-        - can be used in graphs w/ equidistant nodes. eg. MAZE!
+        OPTIMAL: [Only UN-WEIGHTED graph. works for both dir/undir G]
 
-        TIME
-            - Analytically, O(n)
-            - if adjacency matrix O(n^2) cz matrix   
+            - This is a bruteforce algorithm (have to generate lookup again as beg changes)
+            - not needed to always have to do full search for shortest path. 
+                + search until goal
+                + Note: if graph (beg/end) is constantly changing, search is time consuming
+
+            - search creates `prevs` (lookup table of parents for shortest path)
+                + lookup table can be used later for shortest path(without search)
+                + lookup tabe gens shortest path only for given `beg_id and end_id`
+
+        TIME        : Same as BFS Search O(V+E) + lookup(constant time)
         """
         if beg_id not in self.vtx_map.keys() or end_id not in self.vtx_map.keys():
             print('IDs missing')
             return
 
-        first   = self.vtx_map[beg_id]
-        queue   = Queue([first])
-        visited = set(first.id)
-        prevs   = list([first.id]) # records shortest path
+        # `nearest_prevs` is lookup table for shortest path lookup
+        #       + keys   : specific traversed node (of all traversed nodes)
+        #       + values : nearest prevs/parents of node in `key` (of all traversed nodes)
+        # Searching from `end_id` in `nearest_prevs` leads to `beg_id` with shortest path  
 
-        # Regular BFS 
-        # ------------
-        while len(queue) != 0:
-            # get (explore)
-            parent_node = queue.dequeue() # not unique but cur_node_id(below) is unique
+        # Regular BFS (througout search gen lookup table - nearest prevs)
+        # ---------------------------------------------------------------
+        nearest_prevs = Graph.__bfs(graph=self, beg_id=beg_id, end_id=end_id)
 
-            # update queue (visiting)
-            for cur_node_id, _ in parent_node.adj_list:
-                if cur_node_id not in visited: # access in any order
-
-                    # action o(unlike in bfs above)
-                    prevs, goal_found = self.__opn(cur_node_id, goal=end_id, prevs=prevs)
-                    if goal_found is True: return
-                    
-                    # add to visited and enqueue
-                    queue.enqueue(self.vtx_map[cur_node_id])
-                    visited.add(cur_node_id)
+        # lookup nearest path from hmap
+        Graph.__shortest_path(nearest_prevs, end_id, beg_id)
 
 
 if __name__ == '__main__':
@@ -385,6 +346,7 @@ if __name__ == '__main__':
                 "label" : 'Turkey',
                 "coods" : (15, 80), #(x, y, width, height)
             }
+            
         ],
         "edges" : [
             {"initial": 'A', 'terminal': 'B', 'weight': 100},
@@ -395,6 +357,7 @@ if __name__ == '__main__':
             {"initial": 'C', 'terminal': 'A', 'weight': 16},
             {"initial": 'D', 'terminal': 'E', 'weight': 16},
             {"initial": 'E', 'terminal': 'C', 'weight': 2},
+
         ]
     }
 
@@ -426,7 +389,7 @@ if __name__ == '__main__':
     # Shortest Path? Use greedy search by taking all possible node edges
     # works for both weighted and unweighted
     print("+"*100)
-    print('+ Naive Bruteforce');                                    print("+"*100)
+    print('+ Naive Bruteforce (prem-combns)');                      print("+"*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='B');    print("="*100)
     graph.greedy_search_shortest_path(start_id='A', end_id='E');    print("="*100)
     graph.greedy_search_shortest_path(start_id='E', end_id='T');    print("="*100)
@@ -435,18 +398,12 @@ if __name__ == '__main__':
 
     # i. complete search / goal search / shortest path(un-weighted ONLY)
     print("+"*100)
-    print('+ BFS Search');                                             print("+"*100)
-    graph.bfs(beg_id='A', end_id='T');                                 print("="*100) 
-    graph.bfs(beg_id='A', end_id='C');                                 print("="*100)
-    graph.bfs(beg_id='B', end_id='E');                                 print("="*100)
+    print('+ BFS Search');                                           print("+"*100)
+    graph.bfs_shortest_path_search(beg_id='A', end_id='T');          print("="*100) 
+    graph.bfs_shortest_path_search(beg_id='A', end_id='C');          print("="*100)
+    graph.bfs_shortest_path_search(beg_id='B', end_id='E');          print("="*100)
+    graph.bfs_shortest_path_search(beg_id='E', end_id='Q');          print("="*100)
 
-    # note: B->E in naive (weighted) and B->E in bfs(unweighted)
-    # can we use same bfs shortest path search code for B->E weighted?
-    # Yes, edit the `__reconstruct`'s shortest path gen. line 271
-    # but this is useless for large graphs, so, doesn't worth it.
-
-    # see geeks for geeks for dfft. implementation
-    # https://www.geeksforgeeks.org/shortest-path-unweighted-graph/
     # use BFS for better performance than Djikstras
     # https://courses.csail.mit.edu/6.006/fall11/rec/rec15.pdf
 
@@ -464,7 +421,7 @@ C -------------[16]-----------> A
 D -------------[16]-----------> E
 E -------------[2]-----------> C
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Naive Bruteforce
++ Naive Bruteforce (prem-combns)
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 best path: ['A', 'B'], shortest dist: 100
 ====================================================================================================
@@ -482,31 +439,11 @@ best path: None, shortest dist: inf
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 IDs missing
 ====================================================================================================
-path exists (direct edges may not be present): ['A', 'B', 'D', 'C']
-C -> A edge: 100                 3 -> 0 
-C -> B edge: False               3 -> 1 
-C -> D edge: False               3 -> 2 
-D -> A edge: 10                  2 -> 0 
-D -> B edge: 100                 2 -> 1 
-B -> A edge: 100                 1 -> 0 
-un-weighted shortest path reconstructed (revrse): [('C', 'A')]
-un-weighted shortest path reconstructed (corect): [('A', 'C')]
-A->C
+shortest unweighted path: A->C->
 ====================================================================================================
-path exists (direct edges may not be present): ['B', 'A', 'D', 'C', 'E']
-E -> B edge: False               4 -> 0 
-E -> A edge: False               4 -> 1 
-E -> D edge: 16                  4 -> 2 
-E -> C edge: False               4 -> 3 
-C -> B edge: False               3 -> 0 
-C -> A edge: 100                 3 -> 1 
-C -> D edge: False               3 -> 2 
-D -> B edge: 100                 2 -> 0 
-D -> A edge: 10                  2 -> 1 
-A -> B edge: 50                  1 -> 0 
-un-weighted shortest path reconstructed (revrse): [('E', 'D'), ('D', 'B')]
-un-weighted shortest path reconstructed (corect): [('B', 'D'), ('D', 'E')]
-B->D->E
+shortest unweighted path: B->D->E->
+====================================================================================================
+No path
 ====================================================================================================
 """
 

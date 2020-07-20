@@ -98,6 +98,8 @@ class Graph:
         print(f"{from_vtx} -------------[{weight}]-----------> {to_vtx}")
 
     def display(self):
+        print("\nAll nodes: ", self.vtx_map.keys())
+
         for vtx_id in self.vtx_map.keys():
             neighbors = sorted(self.vtx_map[vtx_id].adj_list)
             for neighbor in neighbors:
@@ -357,7 +359,6 @@ if __name__ == '__main__':
             {"initial": 'C', 'terminal': 'A', 'weight': 16},
             {"initial": 'D', 'terminal': 'E', 'weight': 16},
             {"initial": 'E', 'terminal': 'C', 'weight': 2},
-
         ]
     }
 

@@ -91,12 +91,13 @@ class Graph:
     @staticmethod
     def __display(path):
         """ path is list if ids """
-        if path is not False:
-            for _id in path:
-                print(_id, end=" <<=>> ")
-            print()
-        else:
-            print('Path not found')
+        if path is False: print('Path not found'); return
+
+        # else,
+        for _id in path:
+            print(_id, end=" <<=>> ")
+        print('(Paths can go backwards too)')
+            
 
     # Iterative approach
     @staticmethod 
@@ -131,11 +132,11 @@ class Graph:
     # recursive approach
     @staticmethod
     def __dfs_recursive(graph, beg_id, goal):
-        path = []
+        path    = []
         visited = set()
 
-        # full traversal. Break?
-        def preorder(cur_node, found=False):
+        # full traversal. Break for goal?
+        def preorder(cur_node):
             """ 
             - For pre-order action is done while calling time
             - For post-order action is done while returning time
@@ -143,13 +144,13 @@ class Graph:
             # action (while calling time)
             path.append(cur_node.id)
             visited.add(cur_node.id)
-            print('>>', path) 
+            
+            # check goal
 
             for neighbor_id, _ in cur_node.adj_list:
                 # base condn.
                 if neighbor_id not in visited:
-                    preorder(graph.vtx_map[neighbor_id], found=found)
-
+                    preorder(graph.vtx_map[neighbor_id])
 
 
         # preorder traversal
@@ -168,7 +169,7 @@ class Graph:
 
         # dfs search (recursive)
         path_r = Graph.__dfs_recursive(graph=self, beg_id=beg_id, goal=end_id)
-        Graph.__display(path_r)
+        Graph.__display(path_r) # path never false (full traversal. not checking goal found.)
 
 
 # ---------------------------------------------------------------

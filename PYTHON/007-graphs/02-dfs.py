@@ -158,7 +158,12 @@ class Graph:
 
     @staticmethod # recursive approach
     def __dfs_possible_paths(graph, beg_id, end_id):
-        """ exponential time complexity - EXHAUSTIVE SEARCH """
+        """ 
+        - exponential time complexity - EXHAUSTIVE SEARCH/BACK TRACKING
+        - key is to come a step back when either
+            + goal is found (or) end of path of unique nodes
+            + done by removing last node from `path` and `visited` 
+        """
         print('possible paths (recursive approach):')
 
         def _bfs_paths(cur_id, goal_id, path):
@@ -186,7 +191,8 @@ class Graph:
         _bfs_paths(beg_id, end_id, [])
 
 
-    @staticmethod
+    """
+    @staticmethod # iterative method
     def __dfs_possible_paths_i(graph, beg_id, end_id):
         print('possible paths (iterative approach): ')
 
@@ -214,11 +220,9 @@ class Graph:
                         print(f'\t+ path found to {end_id}: {path}')
 
                         # Is it even 
-                        #
+                        # Is back tracking possible with stack?
                         # Possible?
-
-
-        #print(path)
+    """
 
 
     def dfs(self, beg_id, end_id):
@@ -237,7 +241,7 @@ class Graph:
         Graph.__dfs_possible_paths(graph=self, beg_id=beg_id, end_id=end_id)
         # dfs to get all possible paths (iterative)
         # not working how?
-        Graph.__dfs_possible_paths_i(graph=self, beg_id=beg_id, end_id=end_id)
+        # Graph.__dfs_possible_paths_i(graph=self, beg_id=beg_id, end_id=end_id)
 
 
 # ---------------------------------------------------------------

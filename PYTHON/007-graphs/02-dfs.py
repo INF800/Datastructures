@@ -99,8 +99,7 @@ class Graph:
         print('(Paths can go backwards too)')
             
 
-    # Iterative approach
-    @staticmethod 
+    @staticmethod # Iterative approach
     def __dfs(graph, beg_id, goal):
         """ returns path if present else false"""
         first   = graph.vtx_map[beg_id]
@@ -129,8 +128,7 @@ class Graph:
         # reaches here if goal not found
         return path
 
-    # recursive approach
-    @staticmethod
+    @staticmethod # recursive approach
     def __dfs_recursive(graph, beg_id, goal):
         path    = []
         visited = set()
@@ -157,17 +155,18 @@ class Graph:
         preorder(graph.vtx_map[beg_id])
         return path
 
+
     @staticmethod # recursive approach
     def __dfs_possible_paths(graph, beg_id, end_id):
-        print('possible paths:')
+        """ exponential time complexity - EXHAUSTIVE SEARCH """
+        print('possible paths (recursive approach):')
 
         def _bfs_paths(cur_id, goal_id, path):
             """ preorder (action while calling time) """
+            # action
             path.append(cur_id)
-            #print('set: ', visited)
-            #print('dir: ', path)
             if cur_id == goal_id:
-                print(f'path found to {cur_id}: {path}')
+                print(f'\t+ path found to {cur_id}: {path}')
                 return # impt.
 
             for neigh_id, _ in graph.vtx_map[cur_id].adj_list:
@@ -177,14 +176,50 @@ class Graph:
                     _bfs_paths(neigh_id, goal_id, path)
                 
                     # at end of recursion (when returns) step back one step and start searching
-                    # stepping back is done by next two lines.
+                    # again. Stepping back is done by next two lines.
                     # reaches here when 1. possible path ends or 2. cur id is found  
                     visited.remove(neigh_id)
                     path.pop()
-        
+
         # recur 
         visited = set(beg_id)
         _bfs_paths(beg_id, end_id, [])
+
+
+    @staticmethod
+    def __dfs_possible_paths_i(graph, beg_id, end_id):
+        print('possible paths (iterative approach): ')
+
+        first   = graph.vtx_map[beg_id]
+        stack   = Stack([first.id])
+        visited = set([first.id]) 
+
+        path = [first.id]
+
+        while len(stack) != 0:
+            # explore
+            cur_id = stack.pop()
+
+            # visit
+            neighbors = graph.vtx_map[cur_id].adj_list
+            for neigh_id, _ in neighbors:
+                if neigh_id not in visited:
+                    # update
+                    visited.add(neigh_id)
+                    stack.push(neigh_id)
+
+                    # action
+                    path.append(neigh_id)
+                    if neigh_id == end_id:
+                        print(f'\t+ path found to {end_id}: {path}')
+
+                        # Is it even 
+                        #
+                        # Possible?
+
+
+        #print(path)
+
 
     def dfs(self, beg_id, end_id):
         if (beg_id not in self.vtx_map) and (end_id not in self.vtx_map):
@@ -194,15 +229,15 @@ class Graph:
         # regular dfs search (iterative) - full traversal
         path = Graph.__dfs(graph=self, beg_id=beg_id, goal=end_id)
         Graph.__disp_list(path)
-
         # regular dfs search (recursive) - full traversal
         path_r = Graph.__dfs_recursive(graph=self, beg_id=beg_id, goal=end_id)
         Graph.__disp_list(path_r) # path never false
 
         # dfs to get all possible paths (recursive)
         Graph.__dfs_possible_paths(graph=self, beg_id=beg_id, end_id=end_id)
-
         # dfs to get all possible paths (iterative)
+        # not working how?
+        Graph.__dfs_possible_paths_i(graph=self, beg_id=beg_id, end_id=end_id)
 
 
 # ---------------------------------------------------------------

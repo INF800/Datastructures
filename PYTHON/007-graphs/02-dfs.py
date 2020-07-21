@@ -89,13 +89,13 @@ class Graph:
     # DFS
     # -----------------------------------------------
     @staticmethod
-    def __display(path):
+    def __disp_list(path):
         """ path is list if ids """
-        if path is False: print('Path not found'); return
+        if path is False: print('Empty'); return
 
         # else,
         for _id in path:
-            print(_id, end=" <<=>> ")
+            print(_id, end=" <- -> ")
         print('(Paths can go backwards too)')
             
 
@@ -105,7 +105,7 @@ class Graph:
         """ returns path if present else false"""
         first   = graph.vtx_map[beg_id]
         stack   = Stack([first])
-        visited = set([first])
+        visited = set([first.id])
 
         path = [first.id]
 
@@ -123,11 +123,11 @@ class Graph:
 
                     # action
                     path.append(v_id)
-                    if v_id == goal:
-                        return path
+                    #if v_id == goal:
+                    #    return path
 
         # reaches here if goal not found
-        return False
+        return path
 
     # recursive approach
     @staticmethod
@@ -152,24 +152,57 @@ class Graph:
                 if neighbor_id not in visited:
                     preorder(graph.vtx_map[neighbor_id])
 
-
         # preorder traversal
         # populates global path
         preorder(graph.vtx_map[beg_id])
         return path
+
+    @staticmethod # recursive approach
+    def __dfs_possible_paths(graph, beg_id, end_id):
+        print('possible paths:')
+
+        def _bfs_paths(cur_id, goal_id, path):
+            """ preorder (action while calling time) """
+            path.append(cur_id)
+            #print('set: ', visited)
+            #print('dir: ', path)
+            if cur_id == goal_id:
+                print(f'path found to {cur_id}: {path}')
+                return # impt.
+
+            for neigh_id, _ in graph.vtx_map[cur_id].adj_list:
+                # base
+                if neigh_id not in visited:
+                    visited.add(neigh_id)
+                    _bfs_paths(neigh_id, goal_id, path)
+                
+                    # at end of recursion (when returns) step back one step and start searching
+                    # stepping back is done by next two lines.
+                    # reaches here when 1. possible path ends or 2. cur id is found  
+                    visited.remove(neigh_id)
+                    path.pop()
+        
+        # recur 
+        visited = set(beg_id)
+        _bfs_paths(beg_id, end_id, [])
 
     def dfs(self, beg_id, end_id):
         if (beg_id not in self.vtx_map) and (end_id not in self.vtx_map):
             print('nodes missing')
             return
 
-        # dfs search (iterative)
+        # regular dfs search (iterative) - full traversal
         path = Graph.__dfs(graph=self, beg_id=beg_id, goal=end_id)
-        Graph.__display(path)
+        Graph.__disp_list(path)
 
-        # dfs search (recursive)
+        # regular dfs search (recursive) - full traversal
         path_r = Graph.__dfs_recursive(graph=self, beg_id=beg_id, goal=end_id)
-        Graph.__display(path_r) # path never false (full traversal. not checking goal found.)
+        Graph.__disp_list(path_r) # path never false
+
+        # dfs to get all possible paths (recursive)
+        Graph.__dfs_possible_paths(graph=self, beg_id=beg_id, end_id=end_id)
+
+        # dfs to get all possible paths (iterative)
 
 
 # ---------------------------------------------------------------
@@ -200,6 +233,10 @@ if __name__ == '__main__':
                 "id"    : 'D',
                 "label" : 'Italy',
                 "coods" : (50, 50), #(x, y, width, height)
+            },{
+                "id"    : 'E',
+                "label" : 'England',
+                "coods" : (10, 90), #(x, y, width, height)
             }
         ],
         "edges" : [
@@ -209,6 +246,8 @@ if __name__ == '__main__':
             {"initial": 'A', 'terminal': 'C', 'weight': 100},
             {"initial": 'B', 'terminal': 'D', 'weight': 100},
             {"initial": 'C', 'terminal': 'D', 'weight': 70},
+            {"initial": 'D', 'terminal': 'E', 'weight': 7},
+            {"initial": 'E', 'terminal': 'A', 'weight': 30},
         ]
     }
 
@@ -235,5 +274,6 @@ if __name__ == '__main__':
     # DFS
     # ---------------------------------------------------------------
     graph.dfs(beg_id='A', end_id='D');                  print("="*100)
+    # note: BDEADC is not printed in below dfs cz, d occurs 2 times
     graph.dfs(beg_id='B', end_id='C');                  print("="*100)
     graph.dfs(beg_id='B', end_id='X');                  print("="*100)

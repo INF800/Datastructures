@@ -109,7 +109,7 @@ class Graph:
     
     # display edges using __Edge instances
     def display_edges(self, reverse=None): 
-        print('\nNote: faster lookup!')
+        print(f'\nNote: faster lookup! (reverse={reverse})')
 
         if reverse is not None:    
             for edge in sorted(self.edges, reverse=reverse):

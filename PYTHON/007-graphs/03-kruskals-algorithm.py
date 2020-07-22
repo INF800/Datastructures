@@ -222,7 +222,10 @@ class Graph:
                 new_unconn_path_vtxs = unique_unconn_paths[__u_set_idx].union(unique_unconn_paths[__v_set_idx])
                 unique_unconn_paths.append(new_unconn_path_vtxs)
                 
-                # del is shift opn - O(|V|) can use hmaps instead
+                # del is shift opn - O(|V|) can use hmaps instead -- O(1)
+                # or simply make it None and a simple conditional to ignore if none..
+                # If you really want to do so, never pop a set. then can compare if
+                # sets are equal in 0(1) by checking addr -- `if x is y:` 
                 if __v_set_idx > __u_set_idx:
                     del unique_unconn_paths[__v_set_idx], unique_unconn_paths[__u_set_idx]
                 else: 

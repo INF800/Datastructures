@@ -122,14 +122,22 @@ class Graph:
                 Graph.__print_edge(edge.u_id, edge.v_id, edge.wt)
 
     # Minimum Spanning Tree
-    def buldMSP(self, algorithm='Kruskal'):
+    def buldMSP(self, algorithm='Kruskal Optimized'):
 
-        # kruskal's algorithm
+        # kruskal's algorithm - O(N^2)
         if algorithm == 'Kruskal':
             
             MST_nodes, MST_edges = Graph.__Kruskals(graph=self)
             
             print(f'nodes: {[node for node in MST_nodes]}\nMST_edges:')
+            for edge in MST_edges:
+                Graph.__print_edge(edge.u_id, edge.v_id, edge.wt)
+
+        # kruskal's algorithm - O(NlogN)
+        elif algorithm == 'Kruskal Optimized':
+            MST_edges = Graph.__kruskal_optimized(graph=self)
+
+            print('optimized usig union find/partiton:')
             for edge in MST_edges:
                 Graph.__print_edge(edge.u_id, edge.v_id, edge.wt)
 
@@ -186,8 +194,7 @@ class Graph:
         # truck should clean min. roads s.t all destinations are reachable
         n_vtxs = len(unique_unconn_paths) # same as |V|
         new_unconn_path_vtxs = None
-        ITER = 0
-        while ITER != (n_vtxs-1): # O(|V|)
+        while len(MST_edges_accumulator) != (n_vtxs-1): # O(|V|)
             cur_shortest_edge     = sorted_edges.pop()
             cur_u                 = cur_shortest_edge.u_id
             cur_v                 = cur_shortest_edge.v_id
@@ -226,19 +233,108 @@ class Graph:
                 # or simply make it None and a simple conditional to ignore if none..
                 # If you really want to do so, never pop a set. then can compare if
                 # sets are equal in 0(1) by checking addr -- `if x is y:` 
+                # BEST OPTION: Use partition data-structure
                 if __v_set_idx > __u_set_idx:
                     del unique_unconn_paths[__v_set_idx], unique_unconn_paths[__u_set_idx]
                 else: 
                     del unique_unconn_paths[__u_set_idx], unique_unconn_paths[__v_set_idx]
             
-            ITER += 1
-
         return new_unconn_path_vtxs, MST_edges_accumulator
+
+    # ----------------------------------------------------------------
+    # Kruskal's algorithm - optimal
+    # ----------------------------------------------------------------
+    @staticmethod
+    def __kruskal_optimized(graph):
+        """
+        + OPTIMAL
+
+        - UnionFind/Partition Dataset
+            + used to check if if path is acyclic in optimal way 
+                (just like 2 sets list in un-optimal way)
+        """
+
+        class __UnionFind:
+            """
+            Used for two set opns - (using just a list/hmap)
+                + Set Membership
+                + Union opn.
+            """
+            def __init__(self, list_of_node_ids):
+                # note: can be a list as well where IDs are idxs
+                self.__partition = {}
+                
+                for _id in list_of_node_ids:
+                    # initially each node is root of it's own tree
+                    self.__partition[_id] = _id 
+
+            def find_root(self, x_id):
+                # if roots of two ids are same - same path i.e same path
+                # note: this is ammortized 1 - path depth is notably small
+                cur_node = self.__partition[x_id]
+                while self.__partition[cur_node] != cur_node:
+                    # update
+                    cur_node = self.__partition[cur_node]
+                
+                return cur_node # ends at root
+
+            def union(self, u_id_root, v_id_root):
+                # point any one of roots to other
+                self.__partition[u_id_root] = v_id_root
+
+            def get_path(self, x_id):
+                path = []
+                cur_node = self.__partition[x_id]
+                while self.__partition[cur_node] != cur_node:
+                    path = path.append(cur_node)
+                    cur_node = self.__partition[cur_node]
+
+                return path
+
+
+        # ---------------------------------
+        # end class UnionFind  / partition
+        # ----------------------------------
+        
+        # kruskals algorithm:
+        # -------------------
+        
+        # get sorted edges
+        list_of_all_edges   = sorted(graph.edges, reverse=True) # |E| lg(|E|)
+        sorted_edges        = Stack(list_of_all_edges)
+        n_vtxs              = len(graph.vtx_map.keys())
+
+        # create patrition for faster union/set membership 
+        partition = __UnionFind(graph.vtx_map.keys())
+
+        MST_edges = []
+        while len(MST_edges) != (n_vtxs-1): # always n_vtxs-1 edges in MST
+            
+            _cur_edge   = sorted_edges.pop()
+            cur_u_id    = _cur_edge.u_id
+            cur_v_id    = _cur_edge.v_id
+            cur_wt      = _cur_edge.wt
+
+            root_u_id = partition.find_root(cur_u_id) 
+            root_v_id = partition.find_root(cur_v_id)
+
+            if root_u_id == root_v_id: # same path hence, ignore.
+                continue
+
+            #else append to accumulator and union the sets
+            MST_edges.append(Graph.__Edge(cur_u_id, cur_v_id, cur_wt))
+            partition.union(root_u_id, root_v_id)
+
+        # geting all nodes can be done from returned edges
+
+        return MST_edges
+
+
+
 
 # --------------------------------------------------------------------------------------------------------------
 # End class Graph
 # --------------------------------------------------------------------------------------------------------------
-
 
 if __name__ == '__main__':
 
@@ -309,6 +405,10 @@ if __name__ == '__main__':
     # Kruskal's aglorithm (Build MST)
     # --------------------------------------------------------------------------------
     print('');                                                        print('='*100)
-    print('+ KRUSKALS ALGORITHM: MST');                               print('='*100)
+    print('+ KRUSKALS ALGORITHM: MST - O(n^2');                       print('='*100)
     graph.buldMSP(algorithm='Kruskal');                               print('='*100)
+    
+    print('+ KRUSKALS OPTIMIZED: MST - O(nlogn');                     print('='*100)
+    graph.buldMSP(algorithm='Kruskal Optimized');                     print('='*100)
+    
     # will it work for directed? yes as edges are just illusions.

@@ -134,8 +134,27 @@ class Graph:
             pass
 
     @staticmethod
+    def __get_least_cost_and_id_from_set(input_set): # O(V)
+        __least_cost_node   = None
+        __least_cost        = None
+        
+        # can store the least cost globally for faster processing
+        for cur_node_id, cur_node_cost in input_set:
+            if __least_cost is None:
+                __least_cost_node   = cur_node_id
+                __least_cost        = cur_node_cost
+
+            elif cur_node_cost < __least_cost:
+                __least_cost        = cur_node_cost
+                __least_cost_node   = cur_node_id
+
+        return __least_cost_node, __least_cost
+
+    @staticmethod
     def __dijkstra(graph, beg_id):
         """ DIJKSTRA'S ALGORITHM (without using priority queue)
+        - Extension of Krukal's
+        - Greedy algorithm but moves like dfs from single source
 
         - Uses 2 sets
             - `visited`: (like in dfs) tracks vtxs which have been operated upon
@@ -146,6 +165,10 @@ class Graph:
                 + instead of set(O(n)) - use pqueue(O(logn)) for efficiency
         - Only prev vtx (i.e `cur`) of adj_vtx is needed for min-cost-path-from-src
         - `cost` data-structure to store changing costs maps `vtx-id` to `cur_cost`
+
+        Note: If I want to reach any RANDOM DESTINATION from a FIXED STARTING point,
+                + No matter which intermediate node / where it is,
+                    + least cost to reach is constant! (cz we always start from SAME FIXED LOCATION!)
 
         Algorithm:
             - initialize cost, prev --
@@ -175,8 +198,51 @@ class Graph:
 
         TIME        : O(N^2)
         """
+        # initialize pev, cost
+        PREV = {}
+        COST = {}
+        for _id in graph.vtx_map.keys():
+            PREV[_id] = None
+            COST[_id] = math.inf
+        COST[beg_id] = 0
 
-        pass
+        # initialize visited, unvisited
+        visited = set()
+        unvisited = set([(beg_id, 0)]) #(cur_id, cur_cost)
+
+        while len(unvisited) != 0:
+
+            cur_least_node_id, cur_least_cost = Graph.__get_least_cost_and_id_from_set(unvisited)
+
+            # update
+            unvisited.remove((cur_least_node_id, cur_least_cost))
+            visited.add(cur_least_node_id)
+
+            for adj_id, adj_wt in graph.vtx_map[cur_least_node_id].adj_list:
+                if adj_id not in visited:
+                    # try to `relax` if already not
+                    new_cost        = cur_least_cost + adj_wt
+                    exisiting_cost  = COST[adj_id]
+
+                    if new_cost < exisiting_cost:
+                        # update --
+                        # 1. `cost` datastructue
+                        # 2. `prev` for shortest path
+                        # 3. importantly, `unvisited` s.t loop proceed in DFS 
+                        #       + Only difference is, we start with least_most vtx here
+                        COST[adj_id]    = new_cost
+                        PREV[adj_id]    = cur_least_node_id
+
+                        unvisited.add((adj_id, new_cost))
+
+        print('construct shortest path to any node using `prevs`. If `None`, isolated node')
+        print(PREV)
+        print('\nfind cost shortest path to any node using `cost`. If `Inf`, isolated node')
+        print(COST)
+
+        
+
+
 
          
         
@@ -246,10 +312,12 @@ if __name__ == '__main__':
     # print graph
     graph.display()
 
+    """
     # print edges (using __Edge)
     graph.display_edges()
     graph.display_edges(reverse=True)
     graph.display_edges(reverse=False)
+    """
 
     # -------------------------------------------------------------------------------
     # Dijkstra's aglorithm (Find shortest path, Build MST)

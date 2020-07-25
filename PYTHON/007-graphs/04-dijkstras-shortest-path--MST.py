@@ -121,68 +121,62 @@ class Graph:
             for edge in self.edges:
                 Graph.__print_edge(edge.u_id, edge.v_id, edge.wt)
 
-
+    # ------------------------------------------------------------------
     # Dijkstra's shortest path (form MST when all edges visited)
     # ------------------------------------------------------------------
-    def dij(self, beg_id):
-        Graph.__dijkstra(self, beg_id)
+    def dij(self, beg_id, pqueue=False):
+        if pqueue is False:
+            # not efficient - O(V^2)
+            Graph.__dijkstra(self, beg_id)
+
+        elif pqueue is True:
+            # optimal using priority queue - O(VlgV)
+            pass
 
     @staticmethod
     def __dijkstra(graph, beg_id):
-        """
+        """ DIJKSTRA'S ALGORITHM (without using priority queue)
+
+        - Uses 2 sets
+            - `visited`: (like in dfs) tracks vtxs which have been operated upon
+                + If visited, node will have best cost
+            - `unvisited` : (like stack in dfs) same node can be inserted and popped multiple times
+                + tracks adj nodes with their weights (in a loop)
+                + pop(remove node as well) the least wt node as `cur` and proceed iteratively untile not empty
+                + instead of set(O(n)) - use pqueue(O(logn)) for efficiency
+        - Only prev vtx (i.e `cur`) of adj_vtx is needed for min-cost-path-from-src
+        - `cost` data-structure to store changing costs maps `vtx-id` to `cur_cost`
+
+        Algorithm:
+            - initialize cost, prev --
+                + cost[bed_id]=0; cost[others] = inf 
+                + prev[all] = null
+            - add (beg_id, 0) to `unvisited`
+
+            - while `unvisited` !empty --
+                
+                + cur_cost, cur_id = least_cost_node(unvisited) #O(N). pqueue here is more eff. -- O(logN)
+                + pop(cur_id, unvisited)
+                + add(cur_id, visited)
+
+                + for adj_node, adj_wt in adj_list:
+                    + if adj_node not in visited: # if in visited, already operated upon and stored best cost 
+                        
+                        +  -- relaxation --
+                        + new_cost      = cur_cost + adj_wt
+                        + existing_cost = cost[adj_list
+
+                        + if new_cost < existing_cost: # if new_cost is better
+                            + cost[adj_node] = new_cost # record cur cost
+                            + prev[adj_node] = cur_node # record path
+                            
+                            + unvisited.add( (adj_node, new_cost) ) # update and proceed to it! Like dfs
+
 
         TIME        : O(N^2)
         """
 
-        # initialisation
-        # All others except adj neighbors given inf
-        # neighbors - their actual wts
-        shortest_dists_from_beg_id = {}
-        for node_id in graph.vtx_map.keys():
-            shortest_dists_from_beg_id[node_id] = math.inf
-        for neigh_id, neigh_wt in graph.vtx_map[beg_id].adj_list:
-            shortest_dists_from_beg_id[neigh_id] = neigh_wt
-
-        def __preoder(cur_id, this_path_sum, path):
-            """
-                - `Relax` neighbors (if path_sum + edge_cost < cur_cost)
-                - add to visited
-                - select shortest neigbor
-                _ repeat (until visited full)
-            """
-            # update visited
-            path.append(cur_id)
-            visited.add(cur_id)
-            print(f'>> path: {path}, {sum}')
-
-            # relax neighbors (minimize)
-            # and record the least cost node (for proceeding next)
-            __least_cost_node = None
-            __least_cost      = +math.inf
-
-            neighbors = graph.vtx_map[beg_id].adj_list
-            for neigh_id, neigh_wt in neighbors:
-                if neigh_id not in visited: # note: checking 
-                    existing_cost  = shortest_dists_from_beg_id[neigh_id]
-                    cur_cost       = this_path_sum + neigh_wt
-                    if cur_cost < existing_cost:
-                        shortest_dists_from_beg_id[neigh_id] = cur_cost
-
-                    if (__least_cost < cur_cost) or (__least_cost < existing_cost):
-                        __least_cost        = min(cur_cost, existing_cost)
-                        __least_cost_node   = neigh_id
-
-            # recur into shortest neighbor
-            for neigh_id, neigh_wt in neighbors:
-                if neigh_id not in visited: # note: checking 
-                    __preoder(__least_cost_node, this_path_sum=cur_cost+__least_cost, path=path)
-            
-            
-            
-
-        visited = set()
-        __preoder(beg_id, this_path_sum=0, path=[])
-
+        pass
 
          
         
@@ -262,6 +256,6 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------------
     print('');                                                        print('='*100)
     print('+ DIKSTRAS ALGORITHM: MST - O(n^2');                       print('='*100)
-    graph.dij('A');                                                   print('='*100)
+    graph.dij('A', pqueue=False);                                     print('='*100)
     
     # will it work for directed? yes as edges are just illusions.

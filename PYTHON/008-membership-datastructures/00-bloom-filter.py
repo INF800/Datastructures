@@ -4,9 +4,11 @@
 # - membership data structure. rets yes/no only. Cannot be used for other operation like delete etc.
 # - Never gives `False Negative` but can give `False positive` (Adding some items may add other unwanted items automatically!)
 # - probability score can be calulated using:
-#       + Number of bits used
-#       + Number of hash funcs
-#       + Number of items added
+#       + Number of bits used (greater the better)
+#       + Number of hash funcs (greater the better)
+#       + Number of items added (lesser the better)
+#       - Formula: 
+#
 # - Create a simple array of some len(initially all zero) and then make rets of hashes for adding item `1`
 
 class BloomFilter:

@@ -4,10 +4,13 @@
 # - membership data structure. rets yes/no only. Cannot be used for other operation like delete etc.
 # - Never gives `False Negative` but can give `False positive` (Adding some items may add other unwanted items automatically!)
 # - probability score can be calulated using:
-#       + Number of bits used (greater the better)
-#       + Number of hash funcs (greater the better)
-#       + Number of items added (lesser the better)
-#       - Formula: 
+#       + Number of bits used (greater the better)  - m
+#       + Number of hash funcs (greater the better) - k
+#       + Number of items added (lesser the better) - n
+#       - Formulas: 
+#               1. m = -1 * (n * ln(P)) / (ln2)^2  
+#               2. k = (m * ln2) / n
+#                   where P - probability of getting false positives { 0<= p <= 1 }
 #
 # - Create a simple array of some len(initially all zero) and then make rets of hashes for adding item `1`
 
@@ -56,6 +59,11 @@ class BloomFilter:
         self.bit_arr[hash3_idx] = 1
 
     def __contains__(self, e):
+        """
+        TIME        : O(lk) if hash funcs depend on length of string
+                        + l - len of string
+                        + k - num of hash funcs
+        """
         # get bloom idxs
         hash1_idx = BloomFilter.__hash_func(e, self.__hash_func1_suffix, self.__bit_arr_size)
         hash2_idx = BloomFilter.__hash_func(e, self.__hash_func2_suffix, self.__bit_arr_size)
@@ -103,3 +111,24 @@ if __name__ == "__main__":
     print('hash' in bf)
     print((6,3) in bf)
     print([6,3] in bf) # note as str representation is used order is important
+
+
+
+# ============================================================
+# Output
+# ============================================================
+"""
+Must be true:
+True
+True
+True
+True
+True
+True
+True
+Must be false:
+False
+False
+False
+False
+"""

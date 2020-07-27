@@ -40,31 +40,14 @@ class Trie:
         for __key in contents:
             self.insert(__key)
 
+    @staticmethod
+    def __insert(node, unit):
+        pass
+    
 
     def insert(self, key):
-        """
-        - recursively insert into linked list of linked lists
-        """
-        def __insert(node, item, depth=0):
-            # base (consistent w/ all cases below)
-            if len(item) == depth:
-                return None
-            
-            # for `none` root
-            if node is None:
-                node = TrieNode(item[depth])
-
-            # follow - if val already exists (recursively)
-            # else, next - if new
-            if node.val == item[depth]:
-                node.follows = __insert(node, item, depth=depth+1)
-            else:
-                node.next = __insert(node, item, depth=depth+1)
-
-
-
-        # recur 
-        self.root = __insert(self.root, key)
+        for unit in key:
+            self.root = Trie.__insert(self.root, unit)
 
 
     def __contains__(self, key):
@@ -72,3 +55,9 @@ class Trie:
         - recursively check membership
         """
         pass
+
+if __name__ == '__main__':
+    lst = ['hello', 'no', 'hellen', 'heman']
+    trie = Trie(lst)
+    root = trie.root
+    print(root)

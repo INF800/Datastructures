@@ -8,7 +8,10 @@
 # - Implementation using linked list of linked lists. Same can be done using
 #       + Sparse matrix
 #       + Trie Tree  
+#
+# see: 006-treess/trie-tree.py for implementation
 
+'''
 class TrieNode:
     """
     DATA MEMBERS
@@ -17,10 +20,11 @@ class TrieNode:
         - follows   : node addr of succesive unit of difft. key
     """
     def __init__(self, unit, next=None, follows=None):
-        self.val        = unit
+        self.unit       = unit
         self.next       = next
         self.follows    = follows
     # end def __init__
+
 # end class Node
 
 
@@ -35,20 +39,16 @@ class Trie:
     """
 
     def __init__(self, contents=[]):
-        self.root = None
+        self.root = TrieNode('root', None, None)
 
         for __key in contents:
             self.insert(__key)
 
-    @staticmethod
-    def __insert(node, unit):
-        pass
-    
-
     def insert(self, key):
-        for unit in key:
-            self.root = Trie.__insert(self.root, unit)
-
+        """
+        - recursively insert
+        """        
+        pass
 
     def __contains__(self, key):
         """
@@ -61,3 +61,4 @@ if __name__ == '__main__':
     trie = Trie(lst)
     root = trie.root
     print(root)
+'''

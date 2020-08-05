@@ -9,7 +9,7 @@
 #       + Sparse matrix
 #       + Trie Tree  
 #
-# see: 006-treess/trie-tree.py for implementation
+# see: 006-trees/trie-tree.py for implementation
 
 '''
 class TrieNode:

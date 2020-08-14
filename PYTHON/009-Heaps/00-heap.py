@@ -7,7 +7,17 @@
 
 class Heap:
     """
-    
+    DATA MEMBERS
+        + _list                     : internal list representation of heap
+        + __internal_list_size      : actual size of internal list
+        + _size                     : size of heap
+
+    METHODS
+        + insert_from(lst)          : calls `__siftUp` on every ele of lst left to right
+                                        - makes room if load increases using __make_room()
+
+    HELPER METHODS
+        + __make_room(max_ratio)    : if `_list` is full more than `max_ratio` increases size
     """
 
     def __init__(self, contents=[], initial_size=10):

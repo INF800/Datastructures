@@ -15,9 +15,13 @@ class Heap:
     METHODS
         + insert_from(lst)          : calls `__siftUp` on every ele of lst left to right
                                         - makes room if load increases using __make_room()
+                                        -  O(nlogn)
+                                        - `__heapify` [ O(n) ammortized] is better than `__sift_up`
 
-    HELPER METHODS
+    HELPER METHODS 
         + __make_room(max_ratio)    : if `_list` is full more than `max_ratio` increases size
+        + __sift_up                 : 
+        + __hepify                  : 
     """
 
     def __init__(self, contents=[], initial_size=10):
@@ -42,6 +46,9 @@ class Heap:
             self._list = new_list 
 
     def __siftUp(self, cur_idx, cur_e):
+        """
+        TIME:   O(logn)
+        """
         
         parent_idx  = cur_idx // 2
         parent_ele  = self._list[parent_idx]

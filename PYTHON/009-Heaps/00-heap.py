@@ -5,6 +5,8 @@
 # - Cannot be used for searching ele
 # - used only for 1. inserting 2. Deleting (that too only max/min)
 
+import os, time
+
 class Heap:
     """
     KEY: Indices start from 1 not 0.
@@ -44,7 +46,7 @@ class Heap:
     
     # ----------------------------------------------------------
     # Insertion
-    # ----------------------------------------------------------t
+    # ----------------------------------------------------------
     def __get_cur(self):
         return  self._size + 1
 
@@ -76,6 +78,8 @@ class Heap:
         """
         TIME:   O(logn)
         """
+
+        # simply append e to the end of internal list
         self.__append(e)
         
         # sift up appended `e` from it's cur pos `self._size` to rightful positon
@@ -101,8 +105,6 @@ class Heap:
         # as `cur_idx`  will be updated to it's parent idx which is
         # the rightful place
         self._list[cur_idx] = e
-        print(self._list)
-
 
     def insert_from(self, a_sequence, method="siftup"):
         """
@@ -125,7 +127,7 @@ class Heap:
 
                 # add element to heap using heapify/siftup
                 if   method == "siftup"  : self.__siftUp(e)
-                elif method == "heapify" : self.__heapify(e)   
+                elif method == "heapify" : self.__heapify(e)
 
                 
 
@@ -133,3 +135,6 @@ if __name__ == '__main__':
     
     lst = [11,77,33,66,99,33,66,44,-44,-22,-33]
     h = Heap(lst)
+    
+    # internal list retaining conceptual max-top tree
+    print(h._list)

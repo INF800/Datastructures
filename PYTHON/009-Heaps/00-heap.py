@@ -76,9 +76,31 @@ class Heap:
         """
         TIME:   O(logn)
         """
-        
-        # write sift up code here
         self.__append(e)
+        
+        # sift up appended `e` from it's cur pos `self._size` to rightful positon
+        # by succesively bringing down smaller parents until bigger parent is reached
+        cur_idx = self._size
+        par_idx = self._size // 2
+        par_ele = self._list[par_idx]
+
+        while (par_idx >= 1) and (e > par_ele):
+            
+            # bring parent **down** to it's child posn. if (cur_ele > par_ele)
+            # note: but not swapping i.e bringing cur_ele to top 
+            # (will be done in end of while loop)
+            self._list[cur_idx] = par_ele
+
+            # update:
+            # cur_idx -> it's parent
+            # par_idx -> it's parent
+            cur_idx = cur_idx // 2
+            par_idx = par_idx // 2
+            par_ele = self._list[par_idx]
+        
+        # as `cur_idx`  will be updated to it's parent idx which is
+        # the rightful place
+        self._list[cur_idx] = e
         print(self._list)
 
 

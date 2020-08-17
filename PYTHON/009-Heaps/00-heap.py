@@ -22,9 +22,7 @@ class Heap:
 
     METHODS
         + insert_from(lst)          : calls `__siftUp` on every ele of lst left to right
-                                        - makes room if load increases using __make_room()
-                                        -  O(nlogn)
-                                        - `__heapify` [ O(n) ammortized] is better than `__sift_up`
+                                      or calls `__heapify` (check docstring)
 
     HELPER METHODS
         + __get_cur                 : returns to the last position idx (>=1 cz inices start from 1) in _list of heap
@@ -74,6 +72,15 @@ class Heap:
             self._list = new_list 
             self.__internal_list_size = factor * self.__internal_list_size
 
+    """
+    Method to add element `e` to the conceptual
+    heap i.e to internal list in it's rightful place
+
+    Note: CANNOT USE HEAPIFY HERE. IT IS MERELY A
+    TECHNIQUE TO "CREATE HEAP FROM A SEQUENCE".
+    BUT CANNOT BE USED TO APPEND AN ele TO CONCEPTUAL
+    HEAP IN IT'S RIGHTFUL PLACE.
+    """
     def __siftUp(self, e):
         """
         TIME:   O(logn)
@@ -106,12 +113,36 @@ class Heap:
         # the rightful place
         self._list[cur_idx] = e
 
-    def insert_from(self, a_sequence, method="siftup"):
+    """
+    Note: `Heapify` 
+    """
+    def insert_from(self, a_sequence, method="heapify"):
         """
         heapify is more efficient       --> O(n) ammortized
         Here, we are using __siftUp     --> O(nlogn)
 
-        TIME        : O(nlogn)
+        SIFTUP
+            + starts from left-to-right of (raw)internal list from user
+            + bottom-to-top approach - replaces by traversing parents
+                + traverse parent-of-parent-of-parent ... until parent < cur_ele. 
+                + while continuing to traverse, bring the parents down, 
+                  then swap top-most parent with the cur_ele
+                + O(n*logn)
+
+        HEAPIFY
+            + starts from right-to-left of (raw)internal list from user
+            + top-to-bottom approach - replaces by traversing children
+                + As half of eles will be leafs i.e no childern, no need to traverse them
+                    + because [1] - no children - [2] - already a maxheap 
+                + Hence, ammortized O(n) complexity
+                + while moving left-to-right(of raw _list from user), 
+                    + build maxheap w/ cur ele as root 
+        
+        Note: 
+        - SIFTUP can replace HAEPIFY but NOT vice-versa! because,
+        - SIFTUP >>cannot<< be used to insert SINGLE element
+
+        TIME        : O(nlogn) / O(n)
         """
         # Note: idxs start from 1 not 0
         for e in a_sequence:
@@ -125,9 +156,8 @@ class Heap:
                 # makeroom if load > 0.75 ratio
                 self.__make_room(0.75)
 
-                # add element to heap using heapify/siftup
-                if   method == "siftup"  : self.__siftUp(e)
-                elif method == "heapify" : self.__heapify(e)
+                # add element to heap using siftup
+                self.__siftUp(e)
 
                 
 

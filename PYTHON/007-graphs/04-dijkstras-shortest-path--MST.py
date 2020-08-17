@@ -156,7 +156,7 @@ class Graph:
         - Extension of Krukal's
         - Greedy algorithm but moves like dfs from single source
 
-        - Uses 2 sets
+        - Uses 2 sets w/ dfft. purposes
             - `visited`: (like in dfs) tracks vtxs which have been operated upon
                 + If visited, node will have best cost
             - `unvisited` : (like stack in dfs) same node can be inserted and popped multiple times

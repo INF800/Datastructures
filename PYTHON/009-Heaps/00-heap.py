@@ -86,7 +86,9 @@ class Heap:
         TIME:   O(logn)
         """
 
-        # simply append e to the end of internal list
+        # simply append e to the end of internal list.
+        # simply appending in case of initial condition works just fine. 
+        #  cz, no traversal cz, parent idx is 0 and while loop won't accept it
         self.__append(e)
         
         # sift up appended `e` from it's cur pos `self._size` to rightful positon
@@ -116,7 +118,7 @@ class Heap:
     """
     Note: `Heapify` 
     """
-    def insert_from(self, a_sequence, method="heapify"):
+    def insert_from(self, a_sequence, method="siftup"):
         """
         heapify is more efficient       --> O(n) ammortized
         Here, we are using __siftUp     --> O(nlogn)
@@ -145,21 +147,19 @@ class Heap:
         TIME        : O(nlogn) / O(n)
         """
         # Note: idxs start from 1 not 0
-        for e in a_sequence:
+        
+        if method == 'siftup':
+            for e in a_sequence:
 
-                # initial condition (executed only once)
-                # directly add root as there won't be anything to compare
-                if self._size == 0:
-                    self.__append(e)
-                    continue
+                    # makeroom if load > 0.75 ratio
+                    self.__make_room(0.75)
 
-                # makeroom if load > 0.75 ratio
-                self.__make_room(0.75)
+                    # add element to heap using siftup
+                    self.__siftUp(e)
 
-                # add element to heap using siftup
-                self.__siftUp(e)
-
-                
+        if method == 'heapify':
+            # implement heapify here
+            pass
 
 if __name__ == '__main__':
     

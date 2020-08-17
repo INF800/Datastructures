@@ -115,6 +115,14 @@ class Heap:
         # the rightful place
         self._list[cur_idx] = e
 
+    def __heapify(self, a_seq):
+        """
+        TIME: O(n) ammortized as half of seq(leafs) need not be processed
+        """
+        # implement heapify here
+        pass
+
+
     """
     Note: `Heapify` 
     """
@@ -150,16 +158,32 @@ class Heap:
         
         if method == 'siftup':
             for e in a_sequence:
-
                     # makeroom if load > 0.75 ratio
                     self.__make_room(0.75)
-
                     # add element to heap using siftup
                     self.__siftUp(e)
 
         if method == 'heapify':
-            # implement heapify here
-            pass
+            self.__heapify(a_sequence)
+
+    # ----------------------------------------------------------
+    # Insertion single ele
+    # ----------------------------------------------------------
+    def insert(self, e):
+        """ cannot use heapify. must use siftup """
+        self.insert_from([e], method="siftup")
+
+    # ----------------------------------------------------------
+    # Deletion
+    # ----------------------------------------------------------
+    def pop(self):
+        """ top of the maxheap is popped 
+        
+        TIME    : O(n) 
+        """
+        # implement delete here
+        pass
+
 
 if __name__ == '__main__':
     

@@ -263,6 +263,13 @@ if __name__ == '__main__':
     printline("3. Test single ele insert")
     # 3. Test single ele insert
     # (cannot use heapify here)
+    h.insert(98)
+    h.insert(97)
+    is_parent_max = test_childrens_small(h._list, h._size)
+    if is_parent_max is True:
+        print("Test-3: Passed")
+    else:
+        print("Test-3: Failed")
 
 
     printline("4. Test Deletion")
@@ -274,4 +281,3 @@ if __name__ == '__main__':
         print("Test-4: Passed")
     else:
         print("Test-4: Failed")
-    print(h._list)

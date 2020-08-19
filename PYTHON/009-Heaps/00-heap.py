@@ -46,6 +46,7 @@ class Heap:
     # Insertion
     # ----------------------------------------------------------
     def __get_cur(self):
+        """returns idx of first `none` @end of _list"""
         return  self._size + 1
 
     def __append(self, e):
@@ -176,19 +177,101 @@ class Heap:
     # ----------------------------------------------------------
     # Deletion
     # ----------------------------------------------------------
+    @staticmethod
+    def __swap(a, b):
+        temp = a
+        a = b
+        b = temp
+
     def pop(self):
         """ top of the maxheap is popped 
         
-        TIME    : O(n) 
+        - replace top w/ max of it's children (shift the child top)
+        - repeat until c1_idx_crawler < self._size+1 (avoid out-of-idx error)
+
+
+        TIME    : O(logn)
         """
-        # implement delete here
-        pass
+
+        __cache = self._list[1]
+        
+        p_idx_crawler   = 1
+        c1_idx_crawler  = p_idx_crawler * 2
+        c2_idx_crawler  = c1_idx_crawler + 1
+        
+        while (c1_idx_crawler < self._size+1):
+            
+            # find max of children to top shifted 
+            # in parent's position
+            max_c_idx = None
+            if (self._list[c1_idx_crawler] > self._list[c2_idx_crawler]): 
+                max_c_idx = c1_idx_crawler
+            else:
+                max_c_idx = c2_idx_crawler
+
+            # shift the child top
+            self._list[p_idx_crawler] = self._list[max_c_idx]
+
+            # update: (respective to the child that was sent above)
+            p_idx_crawler   = max_c_idx
+            c1_idx_crawler  = p_idx_crawler * 2
+            c2_idx_crawler  = c1_idx_crawler + 1
+        
+        return __cache # popped
 
 
 if __name__ == '__main__':
     
-    lst = [11,77,33,66,99,33,66,44,-44,-22,-33]
-    h = Heap(lst)
+    def printline(text):
+        print("="*100)
+        print(f"+ {text}")
+        print("="*100)    
     
+    def test_childrens_small(internal_list, _internal_list_size):
+        """ tests if children are less than parent """
+        for p_idx in range(1, _internal_list_size+1):
+            c1_idx = p_idx * 2
+            c2_idx = c1_idx + 1 
+            # avoid out-of-index error
+            if c1_idx < (_internal_list_size+1):
+                # test
+                if (internal_list[p_idx] < internal_list[c1_idx]) or (internal_list[p_idx] < internal_list[c2_idx]):
+                    return False
+        
+        return True
+
+
+    lst = [11,77,33,66,99,33,66,44,-44,-22,-33]
+
+
+    printline("1. Test creation (using siftup)")
+    # 1. Test creation (using siftup)
+    h = Heap(lst)
     # internal list retaining conceptual max-top tree
+    is_parent_max = test_childrens_small(h._list, h._size)
+    if is_parent_max is True:
+        print("Test-1: Passed")
+    else:
+        print("Test-1: Failed")
+
+
+    printline("2. Test creation (using heapify)")
+    # 2. Test creation (using heapify)
+    # h = Heap(lst, creation="heapify")
+
+
+    printline("3. Test single ele insert")
+    # 3. Test single ele insert
+    # (cannot use heapify here)
+
+
+    printline("4. Test Deletion")
+    # 4. Test Deletion
+    popped = h.pop()
+    print("deleted: ", popped)
+    is_parent_max = test_childrens_small(h._list, h._size)
+    if is_parent_max is True:
+        print("Test-4: Passed")
+    else:
+        print("Test-4: Failed")
     print(h._list)

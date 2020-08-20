@@ -142,10 +142,10 @@ class Heap:
             c2_idx = c1_idx + 1
 
             # base condition
-            # 1. not out of idx
-            # 2. if children <= parent (and)
-            print(f"{c1_idx} < {self._size+1} : {c1_idx < self._size+1}")
-            if (c1_idx < self._size+1) and (self._list[c1_idx] <= self._list[p_idx]) and (self._list[c2_idx] <= self._list[p_idx]):
+            # 1. not out of idx (or)
+            # 2. if children <= parent
+            if ((c1_idx > self._size+1) or (c1_idx == 0)) or \
+                ((self._list[c1_idx] <= self._list[p_idx]) and (self._list[c2_idx] <= self._list[p_idx])):
                 return # already max heap
             
             # PRE-ORDER ACTION
@@ -180,7 +180,7 @@ class Heap:
             # is it avoiding leaves?
             if (c1_idx_crawler < self._size+1):
                 # makes parents maxheap in-place in `self._list`
-                print("==="*4)
+                print("+"*40)
                 print("bef")
                 print(self._list)
                 print(self._list[p_idx_crawler])

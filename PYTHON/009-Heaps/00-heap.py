@@ -32,7 +32,7 @@ class Heap:
         + __hepify                  : 
     """
 
-    def __init__(self, contents=[], initial_size=10):
+    def __init__(self, contents=[], initial_size=10, creation_method="siftup"):
         # Note: idxs start from 1 not 0
         self._list  = [None]*initial_size 
         self._size  = 0
@@ -40,13 +40,16 @@ class Heap:
         self.__internal_list_size = initial_size
 
         # build heap
-        self.insert_from(contents)
+        self.insert_from(contents, method=creation_method)
     
     # ----------------------------------------------------------
     # Insertion
     # ----------------------------------------------------------
     def __get_cur(self):
         """returns idx of first `none` @end of _list"""
+        # need `__get_cur` because even if we have `self._size` we cannot use
+        # it as iit is for indexing of _list cz, it will always be one less
+        # (because of empty `0`th idx)
         return  self._size + 1
 
     def __append(self, e):
@@ -118,10 +121,83 @@ class Heap:
 
     def __heapify(self, a_seq):
         """
+        - right-to-left unlike left-to-right siftup
+        - check if each cur e is root to max heap (if not, make it!)
+        - inevitably we have to skip half of eles cz, leafs are already maxheaps
+
         TIME: O(n) ammortized as half of seq(leafs) need not be processed
         """
-        # implement heapify here
-        pass
+ 
+        # helpert recursive func
+        def __make_p_maxheap_root(p_idx):
+            """ 
+            checks if parent at `p_idx` in internal list `self._list`
+            is root of maxheap. and makes sure it is root of maxheap IN-PLACE.
+            
+            + Implemented recursively (can be done iteratively too)
+
+            Time : O(logn)
+            """
+            c1_idx = p_idx**2
+            c2_idx = c1_idx + 1
+
+            # base condition
+            # 1. not out of idx
+            # 2. if children <= parent (and)
+            print(f"{c1_idx} < {self._size+1} : {c1_idx < self._size+1}")
+            if (c1_idx < self._size+1) and (self._list[c1_idx] <= self._list[p_idx]) and (self._list[c2_idx] <= self._list[p_idx]):
+                return # already max heap
+            
+            # PRE-ORDER ACTION
+            # base condn failed i.e parent is less than one
+            # of it's chldren.
+            # So, replace parent with max_child 
+            max_c_idx = None
+            if (self._list[c1_idx] > self._list[c2_idx]): max_c_idx = c1_idx
+            else: max_c_idx = c2_idx
+
+            # swap inside _list
+            _temp                   = self._list[max_c_idx]
+            self._list[max_c_idx]   = self._list[p_idx]
+            self._list[p_idx]       = _temp
+
+            # recur not into both children!
+            # only into the one we swapped.
+            __make_p_maxheap_root(p_idx=max_c_idx)
+
+
+        # end recursie def __is_p_maxheap_root
+
+ 
+ 
+        p_idx_crawler = len(a_seq)-1
+        print(self._list)
+        while (p_idx_crawler>=0): 
+            # check if p is root of max heap            
+            c1_idx_crawler = p_idx_crawler ** 2
+
+            # avoid range error and leaves (as already maxheaps)
+            # is it avoiding leaves?
+            if (c1_idx_crawler < self._size+1):
+                # makes parents maxheap in-place in `self._list`
+                print("==="*4)
+                print("bef")
+                print(self._list)
+                print(self._list[p_idx_crawler])
+                print(self._list[c1_idx_crawler])
+                print(self._list[c1_idx_crawler+1])
+                __make_p_maxheap_root(p_idx_crawler)
+                print("aft")
+                print(self._list)
+                print(self._list[p_idx_crawler])
+                print(self._list[c1_idx_crawler])
+                print(self._list[c1_idx_crawler+1])
+
+            # update:
+            # right to left
+            p_idx_crawler = p_idx_crawler-1
+        
+
 
 
     """
@@ -158,6 +234,8 @@ class Heap:
         # Note: idxs start from 1 not 0
         
         if method == 'siftup':
+            # left to  right
+            # --------------
             for e in a_sequence:
                     # makeroom if load > 0.75 ratio
                     self.__make_room(0.75)
@@ -165,6 +243,15 @@ class Heap:
                     self.__siftUp(e)
 
         if method == 'heapify':
+            # copy everything into internal list
+            # which (heap w/ eles not in their rightful places)
+            # time: O(2n) = O(n)
+            for e in a_sequence:
+                self.__make_room(0.75)
+                self.__append(e)
+
+            # crawl right to left and place eles n
+            # in their rightful places
             self.__heapify(a_sequence)
 
     # ----------------------------------------------------------
@@ -177,12 +264,6 @@ class Heap:
     # ----------------------------------------------------------
     # Deletion
     # ----------------------------------------------------------
-    @staticmethod
-    def __swap(a, b):
-        temp = a
-        a = b
-        b = temp
-
     def pop(self):
         """ top of the maxheap is popped 
         
@@ -257,7 +338,7 @@ if __name__ == '__main__':
 
     printline("2. Test creation (using heapify)")
     # 2. Test creation (using heapify)
-    # h = Heap(lst, creation="heapify")
+    h2 = Heap(lst, creation_method="heapify")
 
 
     printline("3. Test single ele insert")

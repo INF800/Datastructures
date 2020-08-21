@@ -138,12 +138,12 @@ class Heap:
 
             Time : O(logn)
             """
-            c1_idx = p_idx**2
+            c1_idx = p_idx*2
             c2_idx = c1_idx + 1
 
-            # base condition
+            # base condition [edge cases] 
             # 1. not out of idx (or)
-            # 2. if children <= parent
+            # 2. if children <= parent (or)
             if ((c1_idx > self._size+1) or (c1_idx == 0)) or \
                 ((self._list[c1_idx] <= self._list[p_idx]) and (self._list[c2_idx] <= self._list[p_idx])):
                 return # already max heap
@@ -169,29 +169,28 @@ class Heap:
         # end recursie def __is_p_maxheap_root
 
  
- 
         p_idx_crawler = len(a_seq)-1
-        print(self._list)
-        while (p_idx_crawler>=0): 
+        while (p_idx_crawler>=1): 
             # check if p is root of max heap            
-            c1_idx_crawler = p_idx_crawler ** 2
+            c1_idx_crawler = p_idx_crawler * 2
 
             # avoid range error and leaves (as already maxheaps)
             # is it avoiding leaves?
             if (c1_idx_crawler < self._size+1):
                 # makes parents maxheap in-place in `self._list`
-                print("+"*40)
+                '''print("+"*40)
+                print(self._list)
                 print("bef")
                 print(self._list)
                 print(self._list[p_idx_crawler])
                 print(self._list[c1_idx_crawler])
-                print(self._list[c1_idx_crawler+1])
+                print(self._list[c1_idx_crawler+1])'''
                 __make_p_maxheap_root(p_idx_crawler)
-                print("aft")
+                '''print("aft")
                 print(self._list)
                 print(self._list[p_idx_crawler])
                 print(self._list[c1_idx_crawler])
-                print(self._list[c1_idx_crawler+1])
+                print(self._list[c1_idx_crawler+1])'''
 
             # update:
             # right to left
@@ -339,6 +338,14 @@ if __name__ == '__main__':
     printline("2. Test creation (using heapify)")
     # 2. Test creation (using heapify)
     h2 = Heap(lst, creation_method="heapify")
+    #print("heapify:", h2._list)
+    #print("_siftup:", h._list)
+    print("Note: different _list for heapify and siftup but both are maxheaps!")
+    is_parent_max = test_childrens_small(h2._list, h2._size)
+    if is_parent_max is True:
+        print("Test-2: Passed")
+    else:
+        print("Test-2: Failed")
 
 
     printline("3. Test single ele insert")

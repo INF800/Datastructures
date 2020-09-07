@@ -77,10 +77,10 @@ def main():
     point_list = [(7,2), (5,4), (9,6), (4,7), (8,1), (2,3)]
     tree = KDTree(point_list)
 
-    print("="*100)
+    print(f"{'='*100}\n+ Test Recursive __repr__ \n{'='*100}")
     print(tree.get_root())
 
-    print("="*100)
+    print(f"{'='*100}\n+ Test BFS Traversal\n{'='*100}")
     tree.dfs()
 
 

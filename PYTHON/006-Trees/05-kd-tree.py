@@ -31,30 +31,30 @@ class KDTree:
     # traverse tree
     # ================================================================
     def dfs(self):
-        def __prefix_action(node, depth):
-            pre = (("|" + "   "*len(node.location))*depth) + ("|___")
-            print(pre + str(node.location))
+        def __preorder_action(node, depth):
+            pre  = (("|" + "   "*len(node.location))*depth) + ("|___")
+            post = "🍁" if ((node.left_child is None) and (node.right_child is None)) else ""
+            print(pre + str(node.location) + post)
 
         def __dfs(node, depth: int = 0):
             # base condition:
             if node is None: return
             
-            __prefix_action(node, depth)
-            __dfs(node.left_child, depth=depth+1)
+            __preorder_action(node, depth)
+            __dfs(node.left_child,  depth=depth+1)
             __dfs(node.right_child, depth=depth+1)
         
         # start recursion
         __dfs(self.root)
 
     # ================================================================
-    # build tree (prefix)
+    # build tree (preorder)
     # ================================================================
     def build_kdtree(self, point_list, depth: int = 0):
-        # base:
-        if not point_list:
-            return None
+        # base condition:
+        if not point_list: return None
 
-        # params:
+        # dynamic params:
         k = len(point_list[0]) # assumes all points have the same dimension
         # Select axis based on depth so that axis cycles through all valid values
         axis = depth % k # 0, 1, 2, 0 ...
@@ -64,7 +64,7 @@ class KDTree:
         point_list.sort(key=itemgetter(axis))
         med_idx = len(point_list) // 2
     
-        # Create node and construct subtrees
+        # Preoder: Create node and construct subtrees
         return KDTree.__Node(
             location      = point_list[med_idx], 
             left_child    = self.build_kdtree(point_list[:med_idx], depth + 1),
